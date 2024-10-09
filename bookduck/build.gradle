@@ -47,6 +47,10 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 	//cache
 	implementation 'org.springframework.boot:spring-boot-starter-cache'
+
+	//JSON 처리
+	implementation 'com.fasterxml.jackson.core:jackson-databind'
+
 	implementation 'org.json:json:20231013' //JsonObject 사용 관련
 	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.17.1' //Jackson - ObjectMapper 시간 직렬화 관련
 }
