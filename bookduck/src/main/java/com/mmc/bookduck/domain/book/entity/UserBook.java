@@ -27,13 +27,21 @@ public class UserBook extends BaseTimeEntity {
     @OnDelete(action = OnDeleteAction.CASCADE) // 다대일 단방향이므로 설정
     private User user;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "book_info_id", updatable = false)
+    @NotNull
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private BookInfo bookInfo;
+
+
     @Builder
-    public UserBook(ReadStatus readStatus, User user) {
+    public UserBook(ReadStatus readStatus, User user, BookInfo bookInfo) {
         this.readStatus = readStatus;
         this.user = user;
+        this.bookInfo = bookInfo;
     }
 
-    public void changeReadStaus(ReadStatus readStatus) {
+    public void changeReadStatus(ReadStatus readStatus) {
         this.readStatus = readStatus;
     }
 }
