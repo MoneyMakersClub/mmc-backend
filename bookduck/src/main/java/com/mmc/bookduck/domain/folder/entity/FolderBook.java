@@ -4,6 +4,7 @@ import com.mmc.bookduck.domain.book.entity.UserBook;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.OnDelete;
@@ -28,6 +29,12 @@ public class FolderBook {
     @NotNull
     @OnDelete(action = OnDeleteAction.CASCADE) // 다대일 단방향이므로 설정
     private UserBook userBook;
+
+    @Builder
+    public FolderBook(UserBook userBook, Folder folder) {
+        this.folder = folder;
+        this.userBook = userBook;
+    }
 
     public void setFolder(Folder folder) {
         this.folder = folder;

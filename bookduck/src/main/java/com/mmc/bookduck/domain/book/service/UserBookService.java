@@ -70,7 +70,7 @@ public class UserBookService {
 
     // 서재에서 책 삭제
     public String deleteUserBook(Long userBookId) {
-        UserBook userBook = findUserById(userBookId);
+        UserBook userBook = findUserBookById(userBookId);
 
         //임시 User
         Long userId = findUser().getUserId();
@@ -99,7 +99,7 @@ public class UserBookService {
             throw new CustomException(ErrorCode.INVALID_ENUM_VALUE);
         }
 
-        UserBook userBook = findUserById(userBookId);
+        UserBook userBook = findUserBookById(userBookId);
 
         //임시 User
         Long userId = findUser().getUserId();
@@ -114,7 +114,7 @@ public class UserBookService {
         }
     }
 
-    public UserBook findUserById(Long userBookId){
+    public UserBook findUserBookById(Long userBookId){
         UserBook userBook = userBookRepository.findById(userBookId)
                 .orElseThrow(()-> new CustomException(ErrorCode.USERBOOK_NOT_FOUND));
         return userBook;

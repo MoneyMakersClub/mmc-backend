@@ -54,9 +54,11 @@ public enum ErrorCode {
     EXCERPT_HEART_NOT_FOUND(404, "발췌의 좋아요를 찾을 수 없습니다."),
     ALARM_NOT_FOUND(404, "알림을 찾을 수 없습니다."),
     FOLDER_NOT_FOUND(404, "폴더를 찾을 수 없습니다."),
+    FOLDERBOOK_NOT_FOUND(404, "폴더내의 책을 찾을 수 없습니다."),
     BADGE_NOT_FOUND(404, "뱃지를 찾을 수 없습니다."),
     SKIN_NOT_FOUND(404, "스킨을 찾을 수 없습니다."),
     GENRE_NOT_FOUND(404, "장르를 찾을 수 없습니다."),
+
 
 
     // 409 Conflict
@@ -71,6 +73,7 @@ public enum ErrorCode {
     EXCERPT_ALREADY_EXISTS(409, "이미 존재하는 발췌입니다."),
     ALARM_ALREADY_EXISTS(409, "이미 존재하는 알림입니다."),
     FOLDER_ALREADY_EXISTS(409, "이미 존재하는 폴더입니다."),
+    FOLDERBOOK_ALREADY_EXISTS(409, "이미 폴더 내에 존재하는 책입니다."),
     BADGE_ALREADY_EXISTS(409, "이미 존재하는 뱃지입니다."),
     SKIN_ALREADY_EXISTS(409, "이미 존재하는 스킨입니다."),
     SKIN_ALREADY_EQUIPPED(409, "이미 장착한 스킨입니다."),
