@@ -29,6 +29,7 @@ public class FriendRequest extends CreatedTimeEntity {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private User receiver;
 
+    @Enumerated(EnumType.STRING)
     @NotNull
     private FriendRequestStatus friendRequestStatus;
 
@@ -36,6 +37,10 @@ public class FriendRequest extends CreatedTimeEntity {
     public FriendRequest(User sender, User receiver, FriendRequestStatus friendRequestStatus) {
         this.sender = sender;
         this.receiver = receiver;
+        this.friendRequestStatus = friendRequestStatus;
+    }
+
+    public void setFriendRequestStatus(FriendRequestStatus friendRequestStatus) {
         this.friendRequestStatus = friendRequestStatus;
     }
 }
