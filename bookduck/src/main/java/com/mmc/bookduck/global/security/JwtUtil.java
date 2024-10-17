@@ -75,7 +75,7 @@ public class JwtUtil {
     public void validateAccessToken(String accessToken){
         try {
             Jwts.parserBuilder().setSigningKey(accessKey).build().parseClaimsJws(accessToken);
-        } catch (SecurityException | MalformedJwtException | UnsupportedJwtException | IllegalArgumentException e){
+        } catch (SecurityException | MalformedJwtException | UnsupportedJwtException | IllegalArgumentException | SignatureException e){
             throw new CustomTokenException(ErrorCode.INVALID_TOKEN);
         } catch (ExpiredJwtException e) {
             throw new CustomTokenException(ErrorCode.EXPIRED_ACCESS_TOKEN);
@@ -86,7 +86,7 @@ public class JwtUtil {
     public void validateRefreshToken(String refreshToken){
         try{
             Jwts.parserBuilder().setSigningKey(refreshKey).build().parseClaimsJws(refreshToken);
-        } catch (SecurityException | MalformedJwtException | UnsupportedJwtException | IllegalArgumentException e){
+        } catch (SecurityException | MalformedJwtException | UnsupportedJwtException | IllegalArgumentException | SignatureException e){
             throw new CustomTokenException(ErrorCode.INVALID_TOKEN);
         } catch (ExpiredJwtException e) {
             throw new CustomTokenException(ErrorCode.EXPIRED_REFRESH_TOKEN);
@@ -94,16 +94,16 @@ public class JwtUtil {
     }
 
     public Authentication getAuthentication(String token){
-        Claims claims = parseClaims(token);
+        Claims claims = parseClaims(token, accessKey);
         List<SimpleGrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority(claims.get("role").toString()));
         User principal = new User(claims.getSubject(), "", authorities); // 서비스 로직의 User 엔티티와 다른 클래스
         return new UsernamePasswordAuthenticationToken(principal, "", principal.getAuthorities());
     }
 
-    private Claims parseClaims(String token) {
+    private Claims parseClaims(String token, Key key) {
         try {
             return Jwts.parserBuilder()
-                    .setSigningKey(accessKey)
+                    .setSigningKey(key)
                     .build()
                     .parseClaimsJws(token).getBody();
         } catch (ExpiredJwtException e) {
@@ -113,8 +113,7 @@ public class JwtUtil {
         }
     }
 
-    // 액세스 토큰 재발급에서 사용
-    public boolean isTokenExpired(String accessToken) {
+    public boolean isAccessTokenExpired(String accessToken) {
         try {
             Claims claims = Jwts.parserBuilder().setSigningKey(accessKey).build().parseClaimsJws(accessToken).getBody();
             return claims.getExpiration().before(new Date());
@@ -123,6 +122,15 @@ public class JwtUtil {
         } catch (JwtException | IllegalArgumentException e) {
             throw new CustomTokenException(ErrorCode.INVALID_TOKEN);
         }
+    }
+
+    public Claims getRefreshTokenClaims(String refreshToken) {
+        validateRefreshToken(refreshToken);
+        return parseClaims(refreshToken, refreshKey);
+    }
+
+    public int getAccessTokenMaxAge() {
+        return (int)  ACCESS_TOKEN_EXPIRE_TIME.toSeconds();
     }
 
     public int getRefreshTokenMaxAge() {

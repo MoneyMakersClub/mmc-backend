@@ -1,6 +1,7 @@
 package com.mmc.bookduck.global.exception;
 
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.LocalDateTime;
 
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -21,6 +23,8 @@ public class GlobalExceptionHandler {
                 e.getErrorCode().getMessage(),
                 request.getRequestURI()
         );
+        log.info("메시지: "+e.getMessage());
+        e.printStackTrace();
         return new ResponseEntity<>(errorDto, HttpStatusCode.valueOf(e.getErrorCode().getStatus()));
     }
 

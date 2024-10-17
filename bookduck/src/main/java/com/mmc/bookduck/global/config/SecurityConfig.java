@@ -38,6 +38,7 @@ public class SecurityConfig {
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
     private final OAuth2FailureHandler oAuth2FailureHandler;
     private final JwtUtil jwtUtil;
+    private final CookieUtil cookieUtil;
 
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
     private final CustomAccessDeniedHandler customAccessDeniedHandler;
@@ -47,7 +48,10 @@ public class SecurityConfig {
     public WebSecurityCustomizer webSecurityCustomizer() {
         return web -> web.ignoring()
                 .requestMatchers("/error", "/favicon.ico",
-                        "/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs", "/v3/api-docs/**")
+                        "/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs", "/v3/api-docs/**",
+                        "/oauth2/authorization/**",
+                        "/auth/refresh"
+                )
                 .requestMatchers(PathRequest.toStaticResources().atCommonLocations());
     }
 
@@ -91,7 +95,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(request -> request
                         .requestMatchers(AUTH_WHITELIST).permitAll()
                         .dispatcherTypeMatchers(DispatcherType.FORWARD).permitAll()
-                        .anyRequest().permitAll()
+                        .anyRequest().authenticated()
                 )
                 // X-Frame-Options: SAME ORIGIN으로 설정
                 .headers(header -> header
@@ -114,7 +118,7 @@ public class SecurityConfig {
                         .addLogoutHandler(customLogoutHandler) // 로그아웃 시 수행할 추가 동작
                         .logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler(HttpStatus.OK)) // 상태코드 200 반환 위함
                 )
-                .addFilterBefore(new JwtFilter(jwtUtil), LogoutFilter.class)
+                .addFilterBefore(new JwtFilter(jwtUtil, cookieUtil), LogoutFilter.class)
 
         ;
         return http.build();

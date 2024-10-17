@@ -32,6 +32,7 @@ public enum ErrorCode {
     OAUTH2_LOGIN_FAILED(401, "소셜 로그인에 실패했습니다."),
     // 유효하지 않은 토큰
     INVALID_TOKEN(401, "유효하지 않은 토큰입니다."),
+    INVALID_REFRESH_TOKEN(401, "유효하지 않은 리프레시 토큰입니다."),
     // 만료된 토큰
     EXPIRED_ACCESS_TOKEN(401,"만료된 액세스 토큰입니다."),
     EXPIRED_REFRESH_TOKEN(401, "만료된 리프레시 토큰입니다."),
