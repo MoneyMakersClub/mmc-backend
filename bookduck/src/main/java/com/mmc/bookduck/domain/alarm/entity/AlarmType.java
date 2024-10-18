@@ -8,7 +8,7 @@ public enum AlarmType {
     EXCERPT_HEART_ADDED,
     REVIEW_HEART_ADDED,
     LEVEL_UP,
-    SKIN_UNLOCKED,
+    ITEM_UNLOCKED,
     BADGE_UNLOCKED,
     PUSH
 }

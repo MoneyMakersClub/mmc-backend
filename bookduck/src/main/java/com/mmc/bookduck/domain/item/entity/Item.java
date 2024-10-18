@@ -1,4 +1,4 @@
-package com.mmc.bookduck.domain.skin.entity;
+package com.mmc.bookduck.domain.item.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -7,18 +7,18 @@ import lombok.*;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-public class Skin {
+public class Item {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(updatable = false)
-    private Long skinId;
+    private Long itemId;
 
     @NotNull
-    private String skinName;
+    private String itemName;
 
     @Enumerated(EnumType.STRING)
     @NotNull
-    private SkinType skinType;
+    private ItemType itemType;
 
     @NotNull
     private String description;
@@ -27,9 +27,9 @@ public class Skin {
     private String unlockCondition; // 추후 수정 필요할 수 있음
 
     @Builder
-    public Skin(String skinName, SkinType skinType, String description, String unlockCondition) {
-        this.skinName = skinName;
-        this.skinType = skinType;
+    public Item(String itemName, ItemType itemType, String description, String unlockCondition) {
+        this.itemName = itemName;
+        this.itemType = itemType;
         this.description = description;
         this.unlockCondition = unlockCondition;
     }

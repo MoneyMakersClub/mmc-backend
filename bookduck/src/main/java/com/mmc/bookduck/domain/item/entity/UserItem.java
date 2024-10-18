@@ -1,4 +1,4 @@
-package com.mmc.bookduck.domain.skin.entity;
+package com.mmc.bookduck.domain.item.entity;
 
 import com.mmc.bookduck.domain.user.entity.User;
 import com.mmc.bookduck.global.common.CreatedTimeEntity;
@@ -12,11 +12,11 @@ import org.hibernate.annotations.OnDeleteAction;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-public class UserSkin extends CreatedTimeEntity {
+public class UserItem extends CreatedTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(updatable = false)
-    private Long userSkinId;
+    private Long userItemId;
 
     @ColumnDefault("false")
     private boolean isEquipped;
@@ -28,15 +28,15 @@ public class UserSkin extends CreatedTimeEntity {
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "skin_id", updatable = false)
+    @JoinColumn(name = "item_id", updatable = false)
     @NotNull
     @OnDelete(action = OnDeleteAction.CASCADE) // 다대일 단방향이므로 설정
-    private Skin skin;
+    private Item item;
 
     @Builder
-    public UserSkin(User user, Skin skin, boolean isEquipped) {
+    public UserItem(User user, Item item, boolean isEquipped) {
         this.user = user;
-        this.skin = skin;
+        this.item = item;
         this.isEquipped = isEquipped;
     }
 

@@ -58,7 +58,7 @@ public enum ErrorCode {
     FOLDER_NOT_FOUND(404, "폴더를 찾을 수 없습니다."),
     FOLDERBOOK_NOT_FOUND(404, "폴더내의 책을 찾을 수 없습니다."),
     BADGE_NOT_FOUND(404, "뱃지를 찾을 수 없습니다."),
-    SKIN_NOT_FOUND(404, "스킨을 찾을 수 없습니다."),
+    ITEM_NOT_FOUND(404, "아이템을 찾을 수 없습니다."),
     GENRE_NOT_FOUND(404, "장르를 찾을 수 없습니다."),
 
 
@@ -78,8 +78,8 @@ public enum ErrorCode {
     FOLDER_ALREADY_EXISTS(409, "이미 존재하는 폴더입니다."),
     FOLDERBOOK_ALREADY_EXISTS(409, "이미 폴더 내에 존재하는 책입니다."),
     BADGE_ALREADY_EXISTS(409, "이미 존재하는 뱃지입니다."),
-    SKIN_ALREADY_EXISTS(409, "이미 존재하는 스킨입니다."),
-    SKIN_ALREADY_EQUIPPED(409, "이미 장착한 스킨입니다."),
+    ITEM_ALREADY_EXISTS(409, "이미 존재하는 아이템입니다."),
+    ITEM_ALREADY_EQUIPPED(409, "이미 장착한 아이템입니다."),
 
     // 500 Internal Server Error
     // 외부 API 사용 도중 에러

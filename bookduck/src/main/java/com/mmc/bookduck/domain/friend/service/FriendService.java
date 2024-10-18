@@ -8,8 +8,8 @@ import com.mmc.bookduck.domain.friend.entity.FriendRequest;
 import com.mmc.bookduck.domain.friend.entity.FriendRequestStatus;
 import com.mmc.bookduck.domain.friend.repository.FriendRepository;
 import com.mmc.bookduck.domain.friend.repository.FriendRequestRepository;
-import com.mmc.bookduck.domain.skin.dto.common.UserSkinEquippedDto;
-import com.mmc.bookduck.domain.skin.service.UserSkinService;
+import com.mmc.bookduck.domain.item.dto.common.UserItemEquippedDto;
+import com.mmc.bookduck.domain.item.service.UserItemService;
 import com.mmc.bookduck.domain.user.entity.User;
 import com.mmc.bookduck.domain.user.service.UserService;
 import com.mmc.bookduck.global.exception.CustomException;
@@ -28,7 +28,7 @@ public class FriendService {
     private final FriendRequestRepository friendRequestRepository;
     private final FriendRepository friendRepository;
     private final UserService userService;
-    private final UserSkinService userSkinService;
+    private final UserItemService userItemService;
 
     // 친구 요청 수락 (=친구 생성)
     public void createFriend(Long friendRequestId){
@@ -61,8 +61,8 @@ public class FriendService {
         List<FriendUnitDto> friendList = friendRepository.findAllByUser1UserId(currentUser.getUserId())
                 .stream()
                 .map(friend -> {
-                    UserSkinEquippedDto userSkinEquipped = userSkinService.getEquippedSkinOrDefault(friend.getUser2().getUserId());
-                    return FriendUnitDto.from(friend, userSkinEquipped);
+                    UserItemEquippedDto userItemEquippedDto = userItemService.getEquippedItemOrDefault(friend.getUser2().getUserId());
+                    return FriendUnitDto.from(friend, userItemEquippedDto);
                 })
                 .collect(Collectors.toList());
         return FriendListResponseDto.from(friendList);
