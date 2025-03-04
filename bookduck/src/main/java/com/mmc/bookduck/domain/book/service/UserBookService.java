@@ -9,7 +9,7 @@ import com.mmc.bookduck.domain.archive.entity.Review;
 import com.mmc.bookduck.domain.archive.repository.ArchiveRepository;
 import com.mmc.bookduck.domain.archive.repository.ExcerptRepository;
 import com.mmc.bookduck.domain.archive.repository.ReviewRepository;
-import com.mmc.bookduck.domain.book.dto.common.BookCoverImageUnitDto;
+import com.mmc.bookduck.domain.book.dto.common.BookCoverWithIsCustomUnitDto;
 import com.mmc.bookduck.domain.book.dto.request.AddCustomBookRequestDto;
 import com.mmc.bookduck.domain.book.dto.request.RatingRequestDto;
 import com.mmc.bookduck.domain.book.dto.response.*;
@@ -301,7 +301,7 @@ public class UserBookService {
     }
 
     @Transactional(readOnly = true)
-    public BookListResponseDto<BookCoverImageUnitDto> getRecentRecordBooks() {
+    public BookListResponseDto<BookCoverWithIsCustomUnitDto> getRecentRecordBooks() {
         User user = userService.getCurrentUser();
         LocalDateTime monthsAgo = LocalDateTime.now().minusMonths(3);
 
@@ -332,9 +332,11 @@ public class UserBookService {
                 }
             }
         }
-        List<BookCoverImageUnitDto> coverList = new ArrayList<>();
+        List<BookCoverWithIsCustomUnitDto> coverList = new ArrayList<>();
         for(UserBook userBook : userBookList){
-            coverList.add(BookCoverImageUnitDto.from(userBook.getBookInfo()));
+            BookInfo bookInfo = userBook.getBookInfo();
+            boolean isCustom = bookInfo.getCreatedUserId() != null;
+            coverList.add(BookCoverWithIsCustomUnitDto.from(userBook.getBookInfo(), isCustom));
         }
         return new BookListResponseDto<>(coverList);
     }

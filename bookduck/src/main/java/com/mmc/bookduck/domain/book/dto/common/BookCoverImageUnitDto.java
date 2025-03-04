@@ -7,7 +7,6 @@ public record BookCoverImageUnitDto(
         String imgPath,
         String title
 ){
-
     public static BookCoverImageUnitDto from(BookInfo bookInfo) {
         return new BookCoverImageUnitDto(
                 bookInfo.getBookInfoId(),
