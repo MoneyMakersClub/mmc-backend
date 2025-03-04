@@ -3,11 +3,22 @@ package com.mmc.bookduck.domain.book.dto.response;
 import com.mmc.bookduck.domain.book.entity.ReadStatus;
 import com.mmc.bookduck.domain.book.entity.UserBook;
 
-public record CustomBookResponseDto(boolean isMine, Long bookInfoId, Long userBookId, String title, String author, String imgPath, ReadStatus readStatus, Double myRating,Long oneLineId, String myOneLine){
+public record CustomBookResponseDto(
+        boolean isCustom,
+        Long bookInfoId,
+        Long userBookId,
+        String title,
+        String author,
+        String imgPath,
+        ReadStatus readStatus,
+        Double myRating,
+        Long oneLineId,
+        String myOneLine
+){
 
-    public CustomBookResponseDto(UserBook userBook, Double myRating, Long oneLineId, String myOneLine, boolean isMine){
+    public CustomBookResponseDto(UserBook userBook, Double myRating, Long oneLineId, String myOneLine, boolean isCustom){
         this(
-                isMine,
+                isCustom,
                 userBook.getBookInfo().getBookInfoId(),
                 userBook.getUserBookId(),
                 userBook.getBookInfo().getTitle(),
@@ -19,9 +30,9 @@ public record CustomBookResponseDto(boolean isMine, Long bookInfoId, Long userBo
                 myOneLine
         );
     }
-    public CustomBookResponseDto(UserBook userBook, boolean isMine){
+    public CustomBookResponseDto(UserBook userBook, boolean isCustom){
         this(
-                isMine,
+                isCustom,
                 userBook.getBookInfo().getBookInfoId(),
                 userBook.getUserBookId(),
                 userBook.getBookInfo().getTitle(),

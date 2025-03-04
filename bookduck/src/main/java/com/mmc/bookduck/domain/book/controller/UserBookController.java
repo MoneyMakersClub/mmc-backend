@@ -1,6 +1,6 @@
 package com.mmc.bookduck.domain.book.controller;
 
-import com.mmc.bookduck.domain.book.dto.common.BookCoverImageUnitDto;
+import com.mmc.bookduck.domain.book.dto.common.BookCoverWithIsCustomUnitDto;
 import com.mmc.bookduck.domain.book.dto.request.AddCustomBookRequestDto;
 import com.mmc.bookduck.domain.book.dto.request.RatingRequestDto;
 import com.mmc.bookduck.domain.book.dto.response.BookListResponseDto;
@@ -109,7 +109,7 @@ public class UserBookController {
 
     @Operation(summary = "검색페이지-최근 기록한책 목록 조회", description = "검색페이지 - 최근 기록한 책 3개를 조회합니다.")
     @GetMapping("/recent")
-    public ResponseEntity<BookListResponseDto<BookCoverImageUnitDto>> getRecentRecordBooks(){
+    public ResponseEntity<BookListResponseDto<BookCoverWithIsCustomUnitDto>> getRecentRecordBooks(){
         return ResponseEntity.status(HttpStatus.OK)
                 .body(userBookService.getRecentRecordBooks());
     }
