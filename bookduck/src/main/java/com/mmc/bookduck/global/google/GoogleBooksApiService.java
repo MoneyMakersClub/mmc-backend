@@ -37,11 +37,8 @@ public class GoogleBooksApiService {
         }
         try {
             // log.info("redis cache miss");
-            String encodedKeyword = URLEncoder.encode(keyword, StandardCharsets.UTF_8);
-            String url = "https://www.googleapis.com/books/v1/volumes?q=" + encodedKeyword
-                    + "&startIndex=" + (page * size)
-                    + "&maxResults=" + size
-                    + "&key=" + apiKey;
+            String url = "https://www.googleapis.com/books/v1/volumes?q=" + keyword + "&startIndex=" + (page * size)
+                    + "&maxResults=" + size + "&key=" + apiKey;
 
             // API GET 요청
             ResponseEntity<String> apiResponse = restTemplate.exchange(url, HttpMethod.GET, null, String.class);
