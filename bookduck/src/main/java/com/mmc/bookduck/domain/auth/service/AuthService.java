@@ -5,7 +5,7 @@ import com.mmc.bookduck.global.exception.CustomTokenException;
 import com.mmc.bookduck.global.exception.ErrorCode;
 import com.mmc.bookduck.global.security.CookieUtil;
 import com.mmc.bookduck.global.security.JwtUtil;
-import com.mmc.bookduck.global.security.RedisService;
+import com.mmc.bookduck.global.redis.RedisService;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -37,16 +37,16 @@ public class AuthService {
         jwtUtil.validateRefreshToken(refreshToken);
         Claims claims = jwtUtil.getRefreshTokenClaims(refreshToken);
         String email = claims.getSubject();
-
+        String redisKey = "auth:refresh_token:" + email;
         // Redis에 저장된 리프레시 토큰과 일치하는지 확인
-        Object storedRefreshToken = redisService.getValues(email);
+        Object storedRefreshToken = redisService.getValues(redisKey);
 
         if (storedRefreshToken == null || !storedRefreshToken.toString().equals(refreshToken)) {
             throw new CustomTokenException(ErrorCode.INVALID_REFRESH_TOKEN);
         }
 
         // 기존 리프레시 토큰 삭제
-        redisService.deleteValues(email);
+        redisService.deleteValues(redisKey);
 
         // 새 액세스 토큰 및 리프레시 토큰 생성
         Authentication authentication = new UsernamePasswordAuthenticationToken(email, null, Collections.singletonList(new SimpleGrantedAuthority(claims.get("role").toString())));

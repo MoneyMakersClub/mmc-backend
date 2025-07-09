@@ -1,4 +1,4 @@
-package com.mmc.bookduck.global.security;
+package com.mmc.bookduck.global.redis;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
