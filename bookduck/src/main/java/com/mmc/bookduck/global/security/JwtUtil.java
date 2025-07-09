@@ -2,6 +2,7 @@ package com.mmc.bookduck.global.security;
 
 import com.mmc.bookduck.global.exception.ErrorCode;
 import com.mmc.bookduck.global.exception.CustomTokenException;
+import com.mmc.bookduck.global.redis.RedisService;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -44,7 +45,8 @@ public class JwtUtil {
         String refreshToken = generateToken(authentication, refreshKey, REFRESH_TOKEN_EXPIRE_TIME);
 
         // 리프레시 토큰을 redis에 저장
-        redisService.setValuesWithTimeout(authentication.getName(), refreshToken, REFRESH_TOKEN_EXPIRE_TIME);
+        String redisKey = "auth:refresh_token:" + authentication.getName();
+        redisService.setValuesWithTimeout(redisKey, refreshToken, REFRESH_TOKEN_EXPIRE_TIME);
         return refreshToken;
     }
 

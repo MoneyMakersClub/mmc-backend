@@ -1,6 +1,7 @@
 package com.mmc.bookduck.global.security;
 
 import com.mmc.bookduck.global.exception.ErrorCode;
+import com.mmc.bookduck.global.redis.RedisService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +32,8 @@ public class CustomLogoutHandler implements LogoutHandler {
 
                 try {
                     // 리프레시 토큰을 Redis에서 삭제 (authentication.getName()인 email을 key로 찾음)
-                    redisService.deleteValues(authentication.getName());
+                    String redisKey = "auth:refresh_token:" + authentication.getName();
+                    redisService.deleteValues(redisKey);
                     // 리프레시 토큰 쿠키 삭제
                 } catch (RedisConnectionFailureException e) {
                     log.error("Redis 연결에 실패했습니다.");

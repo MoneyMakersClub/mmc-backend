@@ -10,7 +10,7 @@ import com.mmc.bookduck.domain.homecard.service.HomeCardService;
 import com.mmc.bookduck.domain.item.service.UserItemService;
 import com.mmc.bookduck.domain.user.entity.User;
 import com.mmc.bookduck.global.security.CookieUtil;
-import com.mmc.bookduck.global.security.RedisService;
+import com.mmc.bookduck.global.redis.RedisService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -59,7 +59,8 @@ public class UserWithdrawService {
         user.clearUserData();;
         userService.saveUser(user);
 
-        redisService.deleteValues(user.getEmail());
+        String redisKey = "auth:refresh_token:" + user.getEmail();
+        redisService.deleteValues(redisKey);
         cookieUtil.deleteCookie(response, "refreshToken");
     }
 }
