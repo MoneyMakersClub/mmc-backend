@@ -97,7 +97,7 @@ public enum ErrorCode {
 
     // 500 Internal Server Error
     // 외부 API 사용 도중 에러
-    REDIS_CONNECTION_ERROR(500, "서버에서 Redis 연결 중 문제가 발생했습니다."),
+    REDIS_ERROR(500, "서버에서 Redis 사용 중 문제가 발생했습니다."),
     EXTERNAL_API_ERROR(500, "외부 API 사용 중 문제가 발생했습니다."),
     UPLOAD_FAIL_TO_GOOGLE(500, "Google Storage에 업로드하지 못했습니다."),
     UPLOAD_FAIL_TO_S3(500, "S3에 업로드하지 못했습니다."),
