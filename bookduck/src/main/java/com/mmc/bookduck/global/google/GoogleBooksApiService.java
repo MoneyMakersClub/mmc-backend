@@ -43,8 +43,8 @@ public class GoogleBooksApiService {
             // API GET 요청
             ResponseEntity<String> apiResponse = restTemplate.exchange(url, HttpMethod.GET, null, String.class);
             String result = apiResponse.getBody();
-            // 6시간 캐싱
-            redisService.setValuesWithTimeout(cacheKey, result, Duration.ofHours(6));
+            // 12시간 캐싱
+            redisService.setValuesWithTimeout(cacheKey, result, Duration.ofHours(12));
             return result;
         } catch (RedisException e) {
             throw new CustomException(ErrorCode.REDIS_ERROR);
