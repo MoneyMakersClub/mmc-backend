@@ -18,25 +18,25 @@ jobs:
 
       - name: Make application.yml
         run: |
-          mkdir -p ./src/main/resources
-          echo "${{ secrets.APPLICATION }}" > ./src/main/resources/application.yml
+          mkdir -p ./bookduck/src/main/resources
+          echo "${{ secrets.APPLICATION }}" > ./bookduck/src/main/resources/application.yml
 
       - name: Create firebase admin sdk JSON file
         uses: jsdaniell/create-json@v1.2.2
         with:
           name: "bookduck-firebase-adminsdk.json"
           json: ${{ secrets.BOOKDUCK_FIREBASE_ADMINSDK }}
-          dir: './src/main/resources'
-          
+          dir: './bookduck/src/main/resources'
+
       - name: Create OCR JSON file
         uses: jsdaniell/create-json@v1.2.2
         with:
           name: "mmc-bookduck-ocr.json"
           json: ${{ secrets.OCR_JSON }}
-          dir: './src/main/resources'
+          dir: './bookduck/src/main/resources'
 
       - name: Check generated JSON files # 디버깅용
-        run: ls -l ./src/main/resources
+        run: ls -l ./bookduck/src/main/resources
 
       - name: Gradle Caching
         uses: actions/cache@v3
@@ -68,15 +68,6 @@ jobs:
           push: true
           platforms: linux/amd64
           tags: ${{ secrets.DOCKER_REPO }}:latest
-
-      - name: Copy JSON files to server
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USERNAME }}
-          key: ${{ secrets.KEY }}
-          source: "./src/main/resources/*"
-          target: "/home/ubuntu/bookduck/src/main/resources/"
 
       - name: Deploy to Server
         uses: appleboy/ssh-action@master
