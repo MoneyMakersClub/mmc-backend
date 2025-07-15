@@ -70,6 +70,17 @@ jobs:
           platforms: linux/amd64
           tags: ${{ secrets.DOCKER_REPO }}:latest
 
+      - name: Copy JSON files to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.KEY }}
+          source: |
+            ./bookduck/src/main/resources/bookduck-firebase-adminsdk.json
+            ./bookduck/src/main/resources/mmc-bookduck-ocr.json
+          target: /home/ubuntu/bookduck/src/main/resources
+
       - name: Deploy to Server
         uses: appleboy/ssh-action@master
         with:
