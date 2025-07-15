@@ -29,6 +29,11 @@ jobs:
           json: ${{ secrets.BOOKDUCK_FIREBASE_ADMINSDK }}
           dir: './bookduck/src/main/resources'
           
+      - name: Create OCR JSON file
+        run: |
+          mkdir -p ./bookduck/src/main/resources
+          echo "${{ secrets.OCR_JSON }}" > ./bookduck/src/main/resources/mmc-bookduck-ocr.json
+
       - name: Gradle Caching
         uses: actions/cache@v3
         with:
