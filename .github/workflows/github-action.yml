@@ -76,10 +76,8 @@ jobs:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.KEY }}
-          source: |
-            ./bookduck/src/main/resources/bookduck-firebase-adminsdk.json
-            ./bookduck/src/main/resources/mmc-bookduck-ocr.json
-          target: /home/ubuntu/bookduck/src/main/resources
+          source: "./bookduck/src/main/resources/*"
+          target: "/home/ubuntu/bookduck/src/main/resources/"
 
       - name: Deploy to Server
         uses: appleboy/ssh-action@master
