@@ -1,6 +1,5 @@
 name: CI/CD with Docker
 
-
 on:
   push:
     branches: [ "deploy" ]
@@ -19,25 +18,25 @@ jobs:
 
       - name: Make application.yml
         run: |
-          mkdir -p ./bookduck/src/main/resources # 디렉토리가 없으면 생성
-          echo "${{ secrets.APPLICATION }}" > ./bookduck/src/main/resources/application.yml
+          mkdir -p ./src/main/resources
+          echo "${{ secrets.APPLICATION }}" > ./src/main/resources/application.yml
 
       - name: Create firebase admin sdk JSON file
         uses: jsdaniell/create-json@v1.2.2
         with:
           name: "bookduck-firebase-adminsdk.json"
           json: ${{ secrets.BOOKDUCK_FIREBASE_ADMINSDK }}
-          dir: './bookduck/src/main/resources'
+          dir: './src/main/resources'
           
       - name: Create OCR JSON file
         uses: jsdaniell/create-json@v1.2.2
         with:
           name: "mmc-bookduck-ocr.json"
           json: ${{ secrets.OCR_JSON }}
-          dir: './bookduck/src/main/resources'
+          dir: './src/main/resources'
 
       - name: Check generated JSON files # 디버깅용
-        run: ls -l ./bookduck/src/main/resources
+        run: ls -l ./src/main/resources
 
       - name: Gradle Caching
         uses: actions/cache@v3
@@ -76,7 +75,7 @@ jobs:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.KEY }}
-          source: "./bookduck/src/main/resources/*"
+          source: "./src/main/resources/*"
           target: "/home/ubuntu/bookduck/src/main/resources/"
 
       - name: Deploy to Server
@@ -87,7 +86,7 @@ jobs:
           key: ${{ secrets.KEY }}
           envs: GITHUB_SHA
           script: |
-            sudo docker-compose -f /home/ubuntu/docker-compose.yml down --remove-orphans # 이전 컨테이너들 제거
-            sudo docker pull ${{ secrets.DOCKER_REPO }}:latest # 최신 Docker 이미지 가져오기
-            sudo docker-compose -f /home/ubuntu/docker-compose.yml up -d --force-recreate # 새 컨테이너 강제 재생성
-            sudo docker image prune -f # 불필요한 이미지를 정리
+            sudo docker-compose -f /home/ubuntu/docker-compose.yml down --remove-orphans
+            sudo docker pull ${{ secrets.DOCKER_REPO }}:latest
+            sudo docker-compose -f /home/ubuntu/docker-compose.yml up -d --force-recreate
+            sudo docker image prune -f
