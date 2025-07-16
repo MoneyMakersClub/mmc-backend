@@ -28,16 +28,6 @@ jobs:
           json: ${{ secrets.BOOKDUCK_FIREBASE_ADMINSDK }}
           dir: './bookduck/src/main/resources'
 
-      - name: Create OCR JSON file
-        uses: jsdaniell/create-json@v1.2.2
-        with:
-          name: "mmc-bookduck-ocr.json"
-          json: ${{ secrets.OCR_JSON }}
-          dir: './bookduck/src/main/resources'
-
-      - name: Check generated JSON files # 디버깅용
-        run: ls -l ./bookduck/src/main/resources
-
       - name: Gradle Caching
         uses: actions/cache@v3
         with:
