@@ -1,10 +1,5 @@
 package com.mmc.bookduck.domain.user.service;
 
-import com.mmc.bookduck.domain.badge.service.UserBadgeService;
-import com.mmc.bookduck.domain.book.service.BookInfoService;
-import com.mmc.bookduck.domain.folder.service.FolderService;
-import com.mmc.bookduck.domain.homecard.service.HomeCardService;
-import com.mmc.bookduck.domain.item.service.UserItemService;
 import com.mmc.bookduck.domain.user.dto.request.UserNicknameRequestDto;
 import com.mmc.bookduck.domain.user.dto.request.UserSettingUpdateRequestDto;
 import com.mmc.bookduck.domain.user.dto.response.UserNicknameResponseDto;
@@ -12,19 +7,15 @@ import com.mmc.bookduck.domain.user.dto.response.UserSettingInfoResponseDto;
 import com.mmc.bookduck.domain.user.dto.response.UserNicknameAvailabilityResponseDto;
 import com.mmc.bookduck.domain.user.entity.User;
 import com.mmc.bookduck.domain.user.entity.UserSetting;
-import com.mmc.bookduck.domain.user.entity.UserStatus;
 import com.mmc.bookduck.domain.user.repository.UserSettingRepository;
 import com.mmc.bookduck.global.exception.CustomException;
 import com.mmc.bookduck.global.exception.ErrorCode;
-import com.mmc.bookduck.global.security.CookieUtil;
-import com.mmc.bookduck.global.security.RedisService;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
-import java.util.UUID;
 import java.util.function.Consumer;
 
 @Service
@@ -67,9 +58,10 @@ public class UserSettingService {
         User user = userService.getCurrentUser();
         if (user.getNickname().equals(nickname))
             return;
-        if (!userService.existsByNickname(nickname)) {
-            user.updateNickname(nickname); // 트랜잭션 커밋 시 자동 저장
-        } else {
+
+        try {
+            user.updateNickname(nickname); // dirty checking으로 트랜잭션 커밋 시 flush
+        } catch (DataIntegrityViolationException e) {
             throw new CustomException(ErrorCode.NICKNAME_ALREADY_EXISTS);
         }
     }
