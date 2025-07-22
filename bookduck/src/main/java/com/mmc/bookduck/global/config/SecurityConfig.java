@@ -68,7 +68,7 @@ public class SecurityConfig {
                 "http://localhost:3001",
                 "https://main.d2upl1xcgysyb.amplifyapp.com",
                 "https://main.d37y6tzxst4a0m.amplifyapp.com",
-                "https://bookduck.vercel.app",
+                "https://bookduck-final.vercel.app",
                 "https://bookduck.co.kr")); // TODO: 추후 변경 필요
 
         configuration.addAllowedMethod("*"); // TODO: 추후 확인 필요
