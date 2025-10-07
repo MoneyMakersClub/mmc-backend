@@ -93,7 +93,7 @@ public class EmitterService {
                         .name("sse-alarm")
                         .data(data)
                         .comment(comment));
-            } catch (IOException e) {
+            } catch (IllegalStateException | IOException e) {
                 emitterRepository.delete(memberId);
                 emitter.completeWithError(e);
             }
