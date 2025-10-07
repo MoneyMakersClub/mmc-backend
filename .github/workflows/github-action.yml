@@ -21,7 +21,20 @@ jobs:
         run: |
           mkdir -p ./bookduck/src/main/resources
           echo "${{ secrets.APPLICATION }}" > ./bookduck/src/main/resources/application.yml
-          echo '${{ secrets.BOOKDUCK_FIREBASE_ADMINSDK }}' > ./bookduck/src/main/resources/bookduck-firebase-adminsdk.json
+          
+      - name: Create Firebase Admin SDK JSON
+        uses: jsdaniell/create-json@v1.2.2
+        with:
+          name: "bookduck-firebase-adminsdk.json"
+          json: ${{ secrets.BOOKDUCK_FIREBASE_ADMINSDK_JSON }}
+          dir: './bookduck/src/main/resources'
+
+      - name: Create OCR Service Account JSON
+        uses: jsdaniell/create-json@v1.2.2
+        with:
+          name: "mmc-bookduck-ocr.json"
+          json: ${{ secrets.MMC_BOOKDUCK_OCR_JSON }}
+          dir: './bookduck/src/main/resources'
 
       - name: Gradle Cache
         uses: actions/cache@v3
