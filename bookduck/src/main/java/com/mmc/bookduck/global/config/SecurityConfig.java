@@ -65,8 +65,8 @@ public class SecurityConfig {
         configuration.setAllowedOrigins(Arrays.asList(
                 "http://localhost:3000",
                 "http://localhost:3001",
-                "https://bookduck-final.vercel.app",
-                "https://bookduck.co.kr")); // TODO: 추후 변경 필요
+                "https://mmc-fe2.vercel.app",
+                "https://www.bookduck.co.kr")); // TODO: 추후 변경 필요
 
         configuration.addAllowedMethod("*"); // TODO: 추후 확인 필요
         configuration.addAllowedHeader("*");
