@@ -21,10 +21,11 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     private final JwtUtil jwtUtil;
     private final CookieUtil cookieUtil;
     private static final String OAUTH_PATH = "/api/oauth";
-    private static final String DEPLOYED_REDIRECT_URL = "https://bookduck-final.vercel.app";
+    private static final String DEPLOYED_REDIRECT_URL = "https://bookduck.co.kr";
     private static final List<String> ALLOWED_REDIRECT_URLS = List.of(
             "http://localhost:3000",
-            "http://localhost:8080"
+            "http://localhost:8080",
+            "https://bookduck-final.vercel.app"
     );
 
     @Override
