@@ -24,8 +24,9 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     private static final String DEPLOYED_REDIRECT_URL = "https://bookduck.co.kr";
     private static final List<String> ALLOWED_REDIRECT_URLS = List.of(
             "http://localhost:3000",
+            "http://localhost:3001",
             "http://localhost:8080",
-            "https://bookduck-final.vercel.app"
+            "https://mmc-fe2.vercel.app"
     );
 
     @Override
