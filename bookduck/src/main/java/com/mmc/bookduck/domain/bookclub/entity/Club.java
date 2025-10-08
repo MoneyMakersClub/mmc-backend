@@ -41,6 +41,10 @@ public class Club extends BaseTimeEntity {
     @ColumnDefault("1")
     private Integer maxMember;
 
+    @Column(nullable = false)
+    @ColumnDefault("true")
+    private Boolean allowJoin;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "book_info_id", nullable = false)
     private BookInfo bookInfo;
@@ -51,7 +55,7 @@ public class Club extends BaseTimeEntity {
     @Builder
     public Club(String clubName, String password, String description,
                 LocalDateTime activeStartAt, LocalDateTime activeEndAt,
-                ClubStatus clubStatus, int maxMember, BookInfo bookInfo) {
+                ClubStatus clubStatus, int maxMember, Boolean allowJoin, BookInfo bookInfo) {
         this.clubName = clubName;
         this.password = password;
         this.description = description;
@@ -59,10 +63,15 @@ public class Club extends BaseTimeEntity {
         this.activeEndAt = activeEndAt;
         this.clubStatus = clubStatus;
         this.maxMember = maxMember;
+        this.allowJoin = allowJoin != null ? allowJoin : true;
         this.bookInfo = bookInfo;
     }
 
     public void updateStatus(ClubStatus clubStatus) {
         this.clubStatus = clubStatus;
+    }
+
+    public void updateAllowJoin(Boolean allowJoin) {
+        this.allowJoin = allowJoin;
     }
 }

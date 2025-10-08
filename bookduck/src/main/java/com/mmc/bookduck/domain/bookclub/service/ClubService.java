@@ -7,6 +7,7 @@ import com.mmc.bookduck.domain.archive.repository.ReviewRepository;
 import com.mmc.bookduck.domain.book.entity.BookInfo;
 import com.mmc.bookduck.domain.book.repository.BookInfoRepository;
 import com.mmc.bookduck.domain.bookclub.dto.request.ClubCreateRequestDto;
+import com.mmc.bookduck.domain.bookclub.dto.request.ClubJoinRequestDto;
 import com.mmc.bookduck.domain.bookclub.dto.response.*;
 import com.mmc.bookduck.domain.bookclub.entity.*;
 import com.mmc.bookduck.domain.bookclub.repository.ClubMemberReadStatusRepository;
@@ -40,11 +41,10 @@ public class ClubService {
     private final ClubMemberRepository clubMemberRepository;
     private final BookInfoRepository bookInfoRepository;
     private final ClubMemberReadStatusRepository clubMemberReadStatusRepository;
-    private final ClubInviteService clubInviteService;
     private final ExcerptRepository excerptRepository;
     private final ReviewRepository reviewRepository;
 
-    // ① 클럽 생성 + 초대 링크 발급
+    // ① 클럽 생성
     public ClubCreateResponseDto createClub(ClubCreateRequestDto requestDto) {
         User currentUser = userService.getCurrentUser();
         BookInfo bookInfo = bookInfoRepository.findById(requestDto.bookInfoId())
@@ -60,6 +60,7 @@ public class ClubService {
                 .clubStatus(ClubStatus.ACTIVE)
                 .bookInfo(bookInfo)
                 .maxMember(requestDto.maxMember())
+                .allowJoin(requestDto.allowJoin())
                 .build();
         clubRepository.save(club);
 
@@ -71,10 +72,7 @@ public class ClubService {
                 .build();
         clubMemberRepository.save(leader);
 
-        // 초대 코드 생성 위임
-        ClubInvite invite = clubInviteService.createInvite(club.getClubId(), 168); // 168h = 7일
-
-        return ClubCreateResponseDto.from(club, invite);
+        return ClubCreateResponseDto.from(club);
     }
 
     @Transactional(readOnly = true)
@@ -174,6 +172,50 @@ public class ClubService {
                 all.stream().max(Comparator.comparing(BaseTimeEntity::getCreatedTime)).orElse(null);
 
         return ClubUnreadSummaryResponseDto.from(unread.size(), latest);
+    }
+
+    // 클럽 가입
+    public ClubJoinResponseDto joinClub(Long clubId, ClubJoinRequestDto requestDto) {
+        User currentUser = userService.getCurrentUser();
+        Club club = clubRepository.findById(clubId)
+                .orElseThrow(() -> new CustomException(ErrorCode.CLUB_NOT_FOUND));
+
+        // 클럽 가입 허용 여부 확인
+        if (!club.getAllowJoin()) {
+            throw new CustomException(ErrorCode.CLUB_JOIN_NOT_ALLOWED);
+        }
+
+        // 클럽 상태 확인
+        if (club.getClubStatus() != ClubStatus.ACTIVE) {
+            throw new CustomException(ErrorCode.CLUB_NOT_ACTIVE);
+        }
+
+        // 이미 가입한 멤버인지 확인
+        boolean alreadyJoined = clubMemberRepository.existsByClubAndUser(club, currentUser);
+        if (alreadyJoined) {
+            throw new CustomException(ErrorCode.ALREADY_JOINED_CLUB);
+        }
+
+        // 최대 인원 확인
+        int memberCount = Math.toIntExact(clubMemberRepository.countByClub(club));
+        if (memberCount >= club.getMaxMember()) {
+            throw new CustomException(ErrorCode.CLUB_FULL);
+        }
+
+        // 비밀번호 확인 (비밀번호가 설정된 경우)
+        if (club.getPassword() != null && !club.getPassword().equals(requestDto.password())) {
+            throw new CustomException(ErrorCode.CLUB_PASSWORD_INCORRECT);
+        }
+
+        // 클럽 가입
+        ClubMember member = ClubMember.builder()
+                .club(club)
+                .user(currentUser)
+                .clubMemberRole(ClubMemberRole.MEMBER)
+                .build();
+        clubMemberRepository.save(member);
+
+        return ClubJoinResponseDto.from(club, member);
     }
 
     @Transactional(readOnly = true)

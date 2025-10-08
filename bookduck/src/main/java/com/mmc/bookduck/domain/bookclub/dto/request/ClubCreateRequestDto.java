@@ -17,5 +17,6 @@ public record ClubCreateRequestDto(
         @Schema(description = "활동 시작 시각") @NotNull LocalDateTime activeStartAt,
         @Schema(description = "활동 종료 시각") @NotNull LocalDateTime activeEndAt,
         @Schema(description = "책 정보 ID") @NotNull Long bookInfoId,
-        @Schema(description = "최대 인원", example = "10") @Min(1) int maxMember
+        @Schema(description = "최대 인원", example = "10") @Min(1) int maxMember,
+        @Schema(description = "가입 허용 여부", example = "true") Boolean allowJoin
 ) {}
