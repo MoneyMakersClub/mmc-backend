@@ -54,4 +54,13 @@ public interface ExcerptRepository extends JpaRepository<Excerpt, Long> {
     long countByUserAndCreatedInYearAndHalf(@Param("user") User user, @Param("year") int year, @Param("isFirstHalf") boolean isFirstHalf);
 
     List<Excerpt> findAllByUserBook(UserBook userBook);
+
+    @Query("""
+        SELECT e FROM Excerpt e
+        WHERE e.user.userId IN :userIds
+          AND e.userBook.bookInfo.bookInfoId = :bookInfoId
+          AND e.createdTime BETWEEN :start AND :end
+    """)
+    List<Excerpt> findClubExcerpts(Long bookInfoId, List<Long> userIds,
+                                   LocalDateTime start, LocalDateTime end);
 }

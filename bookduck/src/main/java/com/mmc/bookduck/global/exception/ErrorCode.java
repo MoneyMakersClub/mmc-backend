@@ -2,6 +2,7 @@ package com.mmc.bookduck.global.exception;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import org.springframework.http.HttpStatus;
 
 @Getter
 @AllArgsConstructor
@@ -28,6 +29,10 @@ public enum ErrorCode {
     HOMECARD_BAD_REQUEST(400, "현재 카드 7개가 다 찼습니다."),
     READINGREPORT_NOT_VIEWABLE(400, "서재에 책이 없어 독서리포트를 볼 수 없습니다."),
     KEYWORD_NOT_VIEWABLE(400, "분석 가능한 키워드 갯수가 충분하지 않습니다."),
+    INVITE_EXPIRED(400, "초대 코드가 만료되었습니다."),
+    INVITE_INACTIVE(400, "초대 코드가 비활성화되었습니다."),
+    ALREADY_JOINED_CLUB(400, "이미 해당 클럽에 가입되어 있습니다."),
+    CLUB_FULL(400, "클럽 정원이 가득 찼습니다."),
 
     // 401 Unauthorized
     // 로그인 상태여야 하는 요청
@@ -51,6 +56,7 @@ public enum ErrorCode {
     FRIEND_REQUEST_DISABLED(403, "친구 요청이 비활성화된 사용자입니다."),
     // 권한이 없는 요청을 보냄
     UNAUTHORIZED_REQUEST(403,"권한이 없습니다."),
+    NOT_CLUB_MEMBER(403, "클럽 멤버가 아닙니다"),
 
     // 404 Not Found
     // 각 리소스를 찾지 못함
@@ -75,6 +81,8 @@ public enum ErrorCode {
     ITEM_NOT_FOUND(404, "아이템을 찾을 수 없습니다."),
     USERITEM_NOT_FOUND(404, "유저의 아이템을 찾을 수 없습니다."),
     GENRE_NOT_FOUND(404, "장르를 찾을 수 없습니다."),
+    CLUB_NOT_FOUND(404, "북클럽을 찾을 수 없습니다"),
+    CLUB_INVITE_NOT_FOUND(404, "초대 코드를 찾을 수 없습니다."),
 
     // 409 Conflict
     // 중복 리소스 생성 시도

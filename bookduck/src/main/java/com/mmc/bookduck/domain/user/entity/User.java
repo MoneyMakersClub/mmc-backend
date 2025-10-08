@@ -1,10 +1,14 @@
 package com.mmc.bookduck.domain.user.entity;
 
+import com.mmc.bookduck.domain.bookclub.entity.ClubMember;
 import com.mmc.bookduck.global.common.BaseTimeEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -42,6 +46,9 @@ public class User extends BaseTimeEntity {
     
     @ColumnDefault("false")
     private boolean isOfficial;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<ClubMember> clubMembers = new ArrayList<>();
 
     @Builder
     public User(Long userId, String email, LoginType loginType, Role role, String nickname, boolean isOfficial) {
