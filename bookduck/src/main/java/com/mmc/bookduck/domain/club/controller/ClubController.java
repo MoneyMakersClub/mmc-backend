@@ -1,16 +1,15 @@
-package com.mmc.bookduck.domain.bookclub.controller;
+package com.mmc.bookduck.domain.club.controller;
 
-import com.mmc.bookduck.domain.bookclub.dto.request.ClubCreateRequestDto;
-import com.mmc.bookduck.domain.bookclub.dto.request.ClubJoinRequestDto;
-import com.mmc.bookduck.domain.bookclub.dto.response.*;
-import com.mmc.bookduck.domain.bookclub.entity.ClubStatus;
-import com.mmc.bookduck.domain.bookclub.service.ClubService;
+import com.mmc.bookduck.domain.club.dto.request.ClubCreateRequestDto;
+import com.mmc.bookduck.domain.club.dto.request.ClubJoinRequestDto;
+import com.mmc.bookduck.domain.club.dto.response.*;
+import com.mmc.bookduck.domain.club.entity.ClubStatus;
+import com.mmc.bookduck.domain.club.service.ClubService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

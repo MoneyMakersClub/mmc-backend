@@ -1,8 +1,8 @@
-package com.mmc.bookduck.domain.bookclub.dto.response;
+package com.mmc.bookduck.domain.club.dto.response;
 
-import com.mmc.bookduck.domain.bookclub.entity.Club;
-import com.mmc.bookduck.domain.bookclub.entity.ClubMember;
-import com.mmc.bookduck.domain.bookclub.entity.ClubMemberRole;
+import com.mmc.bookduck.domain.club.entity.Club;
+import com.mmc.bookduck.domain.club.entity.ClubMember;
+import com.mmc.bookduck.domain.club.entity.ClubMemberRole;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 

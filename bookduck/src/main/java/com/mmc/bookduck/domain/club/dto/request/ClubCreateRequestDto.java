@@ -1,4 +1,4 @@
-package com.mmc.bookduck.domain.bookclub.dto.request;
+package com.mmc.bookduck.domain.club.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Min;

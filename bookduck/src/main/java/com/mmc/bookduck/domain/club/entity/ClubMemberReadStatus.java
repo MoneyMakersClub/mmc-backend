@@ -1,4 +1,4 @@
-package com.mmc.bookduck.domain.bookclub.entity;
+package com.mmc.bookduck.domain.club.entity;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;

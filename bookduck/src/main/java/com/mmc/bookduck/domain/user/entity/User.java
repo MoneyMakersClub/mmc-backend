@@ -1,6 +1,6 @@
 package com.mmc.bookduck.domain.user.entity;
 
-import com.mmc.bookduck.domain.bookclub.entity.ClubMember;
+import com.mmc.bookduck.domain.club.entity.ClubMember;
 import com.mmc.bookduck.global.common.BaseTimeEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;

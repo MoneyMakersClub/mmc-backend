@@ -1,4 +1,4 @@
-package com.mmc.bookduck.domain.bookclub.entity;
+package com.mmc.bookduck.domain.club.entity;
 
 import com.mmc.bookduck.domain.book.entity.BookInfo;
 import com.mmc.bookduck.global.common.BaseTimeEntity;

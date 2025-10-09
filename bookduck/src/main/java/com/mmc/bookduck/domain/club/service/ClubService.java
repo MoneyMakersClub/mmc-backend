@@ -1,4 +1,4 @@
-package com.mmc.bookduck.domain.bookclub.service;
+package com.mmc.bookduck.domain.club.service;
 
 import com.mmc.bookduck.domain.archive.entity.Excerpt;
 import com.mmc.bookduck.domain.archive.entity.Review;
@@ -6,13 +6,13 @@ import com.mmc.bookduck.domain.archive.repository.ExcerptRepository;
 import com.mmc.bookduck.domain.archive.repository.ReviewRepository;
 import com.mmc.bookduck.domain.book.entity.BookInfo;
 import com.mmc.bookduck.domain.book.repository.BookInfoRepository;
-import com.mmc.bookduck.domain.bookclub.dto.request.ClubCreateRequestDto;
-import com.mmc.bookduck.domain.bookclub.dto.request.ClubJoinRequestDto;
-import com.mmc.bookduck.domain.bookclub.dto.response.*;
-import com.mmc.bookduck.domain.bookclub.entity.*;
-import com.mmc.bookduck.domain.bookclub.repository.ClubMemberReadStatusRepository;
-import com.mmc.bookduck.domain.bookclub.repository.ClubMemberRepository;
-import com.mmc.bookduck.domain.bookclub.repository.ClubRepository;
+import com.mmc.bookduck.domain.club.dto.request.ClubCreateRequestDto;
+import com.mmc.bookduck.domain.club.dto.request.ClubJoinRequestDto;
+import com.mmc.bookduck.domain.club.dto.response.*;
+import com.mmc.bookduck.domain.club.entity.*;
+import com.mmc.bookduck.domain.club.repository.ClubMemberReadStatusRepository;
+import com.mmc.bookduck.domain.club.repository.ClubMemberRepository;
+import com.mmc.bookduck.domain.club.repository.ClubRepository;
 import com.mmc.bookduck.domain.user.entity.User;
 import com.mmc.bookduck.domain.user.service.UserService;
 import com.mmc.bookduck.global.common.BaseTimeEntity;

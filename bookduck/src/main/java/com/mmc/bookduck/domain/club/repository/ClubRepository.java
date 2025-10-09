@@ -1,7 +1,7 @@
-package com.mmc.bookduck.domain.bookclub.repository;
+package com.mmc.bookduck.domain.club.repository;
 
-import com.mmc.bookduck.domain.bookclub.entity.Club;
-import com.mmc.bookduck.domain.bookclub.entity.ClubStatus;
+import com.mmc.bookduck.domain.club.entity.Club;
+import com.mmc.bookduck.domain.club.entity.ClubStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -1,8 +1,8 @@
-package com.mmc.bookduck.domain.bookclub.repository;
+package com.mmc.bookduck.domain.club.repository;
 
-import com.mmc.bookduck.domain.bookclub.entity.ClubMember;
+import com.mmc.bookduck.domain.club.entity.ClubMember;
 import com.mmc.bookduck.domain.user.entity.User;
-import com.mmc.bookduck.domain.bookclub.entity.Club;
+import com.mmc.bookduck.domain.club.entity.Club;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

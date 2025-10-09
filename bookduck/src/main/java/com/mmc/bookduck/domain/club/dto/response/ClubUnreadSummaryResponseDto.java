@@ -1,4 +1,4 @@
-package com.mmc.bookduck.domain.bookclub.dto.response;
+package com.mmc.bookduck.domain.club.dto.response;
 
 import com.mmc.bookduck.domain.archive.entity.Excerpt;
 import com.mmc.bookduck.domain.archive.entity.Review;
