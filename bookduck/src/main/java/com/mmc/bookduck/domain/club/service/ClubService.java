@@ -5,13 +5,14 @@ import com.mmc.bookduck.domain.archive.entity.Review;
 import com.mmc.bookduck.domain.archive.repository.ExcerptRepository;
 import com.mmc.bookduck.domain.archive.repository.ReviewRepository;
 import com.mmc.bookduck.domain.book.entity.BookInfo;
-import com.mmc.bookduck.domain.book.repository.BookInfoRepository;
+import com.mmc.bookduck.domain.book.service.BookInfoService;
+import com.mmc.bookduck.domain.club.dto.common.ClubMemberRoleInfo;
 import com.mmc.bookduck.domain.club.dto.request.ClubCreateRequestDto;
 import com.mmc.bookduck.domain.club.dto.request.ClubJoinRequestDto;
+import com.mmc.bookduck.domain.club.dto.request.ClubUpdateRequestDto;
 import com.mmc.bookduck.domain.club.dto.response.*;
 import com.mmc.bookduck.domain.club.entity.*;
 import com.mmc.bookduck.domain.club.repository.ClubMemberReadStatusRepository;
-import com.mmc.bookduck.domain.club.repository.ClubMemberRepository;
 import com.mmc.bookduck.domain.club.repository.ClubRepository;
 import com.mmc.bookduck.domain.user.entity.User;
 import com.mmc.bookduck.domain.user.service.UserService;
@@ -38,18 +39,16 @@ import java.util.List;
 public class ClubService {
     private final UserService userService;
     private final ClubRepository clubRepository;
-    private final ClubMemberRepository clubMemberRepository;
-    private final BookInfoRepository bookInfoRepository;
+    private final BookInfoService bookInfoService;
     private final ClubMemberReadStatusRepository clubMemberReadStatusRepository;
     private final ExcerptRepository excerptRepository;
     private final ReviewRepository reviewRepository;
+    private final ClubMemberService clubMemberService;
 
-    // ① 클럽 생성
+    // 클럽 생성
     public ClubCreateResponseDto createClub(ClubCreateRequestDto requestDto) {
         User currentUser = userService.getCurrentUser();
-        BookInfo bookInfo = bookInfoRepository.findById(requestDto.bookInfoId())
-                .orElseThrow(() -> new CustomException(ErrorCode.BOOKINFO_NOT_FOUND));
-
+        BookInfo bookInfo = bookInfoService.getBookInfoById(requestDto.bookInfoId());
         // 클럽 생성
         Club club = Club.builder()
                 .clubName(requestDto.clubName())
@@ -63,55 +62,33 @@ public class ClubService {
                 .allowJoin(true)
                 .build();
         clubRepository.save(club);
-
-        // 방장 등록
-        ClubMember leader = ClubMember.builder()
-                .club(club)
-                .user(currentUser)
-                .clubMemberRole(ClubMemberRole.LEADER)
-                .build();
-        clubMemberRepository.save(leader);
-
+        // 클럽 리더 생성
+        clubMemberService.createClubLeader(club, currentUser);
         return ClubCreateResponseDto.from(club);
     }
 
     @Transactional(readOnly = true)
-    public Club getClubById(Long clubId) {
-        return clubRepository.findById(clubId)
-                .orElseThrow(() -> new CustomException(ErrorCode.CLUB_NOT_FOUND));
-    }
-
-    @Transactional(readOnly = true)
     public ClubArchiveListResponseDto getClubArchives(Long clubId, Pageable pageable) {
-        Club club = clubRepository.findById(clubId)
-                .orElseThrow(() -> new CustomException(ErrorCode.CLUB_NOT_FOUND));
-
-        // 클럽 멤버 및 현재 사용자 조회
-        List<ClubMember> members = clubMemberRepository.findByClub(club);
         User currentUser = userService.getCurrentUser();
-        ClubMember currentMember = clubMemberRepository.findByClubAndUser(club, currentUser)
-                .orElseThrow(() -> new CustomException(ErrorCode.NOT_CLUB_MEMBER));
-
-        // 마지막 읽은 시점
-        LocalDateTime lastReadAt = clubMemberReadStatusRepository.findByClubMember(currentMember)
-                .map(ClubMemberReadStatus::getLastReadAt)
-                .orElse(LocalDateTime.MIN);
-
-        // 클럽 대상 책
+        Club club = getClubById(clubId);
+        // 클럽 멤버 및 상태 조회
+        ClubMember currentMember = clubMemberService.getClubMemberByClubAndUser(club, currentUser);
+        LocalDateTime lastReadAt = getLastReadAt(currentMember);
         BookInfo targetBook = club.getBookInfo();
 
-        // 유저 ID 목록
-        List<Long> memberUserIds = members.stream()
+        // 클럽 멤버 전체 userId 추출
+        List<Long> memberUserIds = clubMemberService.getClubMembersByClub(club).stream()
                 .map(cm -> cm.getUser().getUserId())
                 .toList();
 
-        // Excerpt + Review 모두 조회
+        // 전체 Excerpt / Review 조회 (읽음 여부 필터 제거)
         List<Excerpt> excerpts = excerptRepository.findClubExcerpts(
                 targetBook.getBookInfoId(),
                 memberUserIds,
                 club.getActiveStartAt(),
                 club.getActiveEndAt()
         );
+
         List<Review> reviews = reviewRepository.findClubReviews(
                 targetBook.getBookInfoId(),
                 memberUserIds,
@@ -119,36 +96,37 @@ public class ClubService {
                 club.getActiveEndAt()
         );
 
-        // 하나로 합치기 (게시물 DTO 변환)
-        List<ClubArchiveResponseDto> allPosts = new ArrayList<>();
-        excerpts.forEach(e ->
-                allPosts.add(ClubArchiveResponseDto.fromExcerpt(e, e.getCreatedTime().isAfter(lastReadAt))));
-        reviews.forEach(r ->
-                allPosts.add(ClubArchiveResponseDto.fromReview(r, r.getCreatedTime().isAfter(lastReadAt))));
+        // DTO 변환 + lastReadAt로 읽음 여부 플래그 계산
+        List<ClubArchiveResponseDto> allPosts = new ArrayList<>(excerpts.size() + reviews.size());
 
-        // 정렬 및 페이지 처리
+        for (Excerpt e : excerpts) {
+            boolean isUnread = e.getCreatedTime().isAfter(lastReadAt);
+            allPosts.add(ClubArchiveResponseDto.fromExcerpt(e, isUnread));
+        }
+        for (Review r : reviews) {
+            boolean isUnread = r.getCreatedTime().isAfter(lastReadAt);
+            allPosts.add(ClubArchiveResponseDto.fromReview(r, isUnread));
+        }
+
+        // 정렬 및 페이징 (최신순)
         allPosts.sort(Comparator.comparing(ClubArchiveResponseDto::createdTime).reversed());
-        Page<ClubArchiveResponseDto> dtoPage = new PageImpl<>(allPosts, pageable, allPosts.size());
+        int start = (int) pageable.getOffset();
+        int end = Math.min(start + pageable.getPageSize(), allPosts.size());
+        List<ClubArchiveResponseDto> pageContent = allPosts.subList(start, end);
 
+        Page<ClubArchiveResponseDto> dtoPage = new PageImpl<>(pageContent, pageable, allPosts.size());
         return ClubArchiveListResponseDto.from(dtoPage);
     }
 
+    // TODO: 재확인 필요
     @Transactional(readOnly = true)
     public ClubUnreadSummaryResponseDto getUnreadSummary(Long clubId) {
-        Club club = clubRepository.findById(clubId)
-                .orElseThrow(() -> new CustomException(ErrorCode.CLUB_NOT_FOUND));
-
         User currentUser = userService.getCurrentUser();
-        ClubMember member = clubMemberRepository.findByClubAndUser(club, currentUser)
-                .orElseThrow(() -> new CustomException(ErrorCode.NOT_CLUB_MEMBER));
+        Club club = getClubById(clubId);
+        ClubMember currentMember = clubMemberService.getClubMemberByClubAndUser(club, currentUser);
+        LocalDateTime lastReadAt = getLastReadAt(currentMember);
 
-        LocalDateTime lastReadAt = clubMemberReadStatusRepository.findByClubMember(member)
-                .map(ClubMemberReadStatus::getLastReadAt)
-                .orElse(LocalDateTime.MIN);
-
-        List<Long> memberUserIds = clubMemberRepository.findByClub(club).stream()
-                .map(cm -> cm.getUser().getUserId())
-                .toList();
+        List<Long> memberUserIds = clubMemberService.getMemberUserIds(club);
 
         // Excerpt + Review 조회
         List<Excerpt> excerpts = excerptRepository.findClubExcerpts(
@@ -177,8 +155,7 @@ public class ClubService {
     // 클럽 가입
     public ClubJoinResponseDto joinClub(Long clubId, ClubJoinRequestDto requestDto) {
         User currentUser = userService.getCurrentUser();
-        Club club = clubRepository.findById(clubId)
-                .orElseThrow(() -> new CustomException(ErrorCode.CLUB_NOT_FOUND));
+        Club club = getClubById(clubId);
 
         // 클럽 가입 허용 여부 확인
         if (!club.getAllowJoin()) {
@@ -190,32 +167,13 @@ public class ClubService {
             throw new CustomException(ErrorCode.CLUB_NOT_ACTIVE);
         }
 
-        // 이미 가입한 멤버인지 확인
-        boolean alreadyJoined = clubMemberRepository.existsByClubAndUser(club, currentUser);
-        if (alreadyJoined) {
-            throw new CustomException(ErrorCode.ALREADY_JOINED_CLUB);
-        }
-
-        // 최대 인원 확인
-        int memberCount = Math.toIntExact(clubMemberRepository.countByClub(club));
-        if (memberCount >= club.getMaxMember()) {
-            throw new CustomException(ErrorCode.CLUB_FULL);
-        }
-
         // 비밀번호 확인 (비밀번호가 설정된 경우)
         if (club.getPassword() != null && !club.getPassword().equals(requestDto.password())) {
             throw new CustomException(ErrorCode.CLUB_PASSWORD_INCORRECT);
         }
 
-        // 클럽 가입
-        ClubMember member = ClubMember.builder()
-                .club(club)
-                .user(currentUser)
-                .clubMemberRole(ClubMemberRole.MEMBER)
-                .build();
-        clubMemberRepository.save(member);
-
-        return ClubJoinResponseDto.from(club, member);
+        ClubMember clubMember = clubMemberService.joinToClub(club, currentUser);
+        return ClubJoinResponseDto.from(club, clubMember);
     }
 
     @Transactional(readOnly = true)
@@ -223,7 +181,7 @@ public class ClubService {
         User currentUser = userService.getCurrentUser();
 
         // 내가 속한 클럽 목록
-        List<ClubMember> memberships = clubMemberRepository.findByUser(currentUser);
+        List<ClubMember> memberships = clubMemberService.getClubMembersByUser(currentUser);
 
         List<ClubJoinedResponseDto> result = new ArrayList<>();
 
@@ -233,7 +191,7 @@ public class ClubService {
             // 미확인 게시물 요약 계산
             ClubUnreadSummaryResponseDto unreadSummary = getUnreadSummary(club.getClubId());
 
-            int memberCount = Math.toIntExact(clubMemberRepository.countByClub(club));
+            int memberCount = Math.toIntExact(clubMemberService.countByClub(club));
             String bookTitle = club.getBookInfo().getTitle();
 
             ClubJoinedResponseDto.LatestPost latestPost = null;
@@ -268,5 +226,129 @@ public class ClubService {
         // Club을 ClubSearchResponseDto로 변환
         Page<ClubSearchResponseDto> dtoPage = clubPage.map(ClubSearchResponseDto::from);
         return ClubSearchListResponseDto.from(dtoPage);
+    }
+
+    // 클럽 상세 조회
+    @Transactional(readOnly = true)
+    public ClubDetailResponseDto getClubDetail(Long clubId) {
+        Club club = getClubById(clubId);
+        User currentUser = userService.getCurrentUser();
+        // 멤버 여부 및 역할을 서비스에 위임
+        ClubMemberRoleInfo roleInfo = clubMemberService.getMemberRoleInfo(club, currentUser);
+        return ClubDetailResponseDto.from(club, roleInfo.isMember(), roleInfo.memberRole());
+    }
+
+    // 클럽 정보 수정
+    public ClubUpdateResponseDto updateClub(Long clubId, ClubUpdateRequestDto requestDto) {
+        Club club = getClubById(clubId);
+        User currentUser = userService.getCurrentUser();
+        ClubMember member = clubMemberService.getClubMemberByClubAndUser(club, currentUser);
+        // LEADER만 수정 가능
+        if (member.getClubMemberRole() != ClubMemberRole.LEADER) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED_REQUEST);
+        }
+        // 정보 업데이트
+        if (requestDto.clubName() != null && !requestDto.clubName().trim().isEmpty()) {
+            club.updateClubName(requestDto.clubName().trim());
+        }
+        if (requestDto.description() != null) {
+            club.updateDescription(requestDto.description());
+        }
+        if (requestDto.password() != null) {
+            club.updatePassword(requestDto.password());
+        }
+        if (requestDto.activeStartAt() != null) {
+            club.updateActiveStartAt(requestDto.activeStartAt());
+        }
+        if (requestDto.activeEndAt() != null) {
+            club.updateActiveEndAt(requestDto.activeEndAt());
+        }
+        if (requestDto.maxMember() != null) {
+            club.updateMaxMember(requestDto.maxMember());
+        }
+        if (requestDto.allowJoin() != null) {
+            club.updateAllowJoin(requestDto.allowJoin());
+        }
+
+        clubRepository.save(club);
+        return ClubUpdateResponseDto.from(club);
+    }
+
+    // 클럽 삭제 (비활성화)
+    public void deleteClub(Long clubId) {
+        Club club = getClubById(clubId);
+
+        User currentUser = userService.getCurrentUser();
+        ClubMember member = clubMemberService.getClubMemberByClubAndUser(club, currentUser);
+
+        // LEADER만 삭제 가능
+        if (member.getClubMemberRole() != ClubMemberRole.LEADER) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED_REQUEST);
+        }
+
+        // 클럽 상태를 DELETED로 변경 (실제 삭제는 하지 않음)
+        club.updateStatus(ClubStatus.DELETED);
+        clubRepository.save(club);
+    }
+
+    // 클럽 멤버 목록 조회
+    @Transactional(readOnly = true)
+    public ClubMembersResponseDto getClubMembers(Long clubId) {
+        Club club = getClubById(clubId);
+        User currentUser = userService.getCurrentUser();
+
+        List<ClubMember> members = clubMemberService.getClubMembersByClub(club);
+        List<ClubMemberResponseDto> memberDtos = members.stream()
+                .map(ClubMemberResponseDto::from)
+                .toList();
+        return ClubMembersResponseDto.from(club.getClubId(), club.getClubName(), memberDtos);
+    }
+
+    // 클럽 탈퇴
+    public void leaveClub(Long clubId) {
+        Club club = getClubById(clubId);
+        User currentUser = userService.getCurrentUser();
+        ClubMember member = clubMemberService.getClubMemberByClubAndUser(club, currentUser);
+        clubMemberService.deleteClubMember(member);
+    }
+
+    // 클럽 멤버 강퇴
+    public void removeMember(Long clubId, Long memberId) {
+        Club club = getClubById(clubId);
+
+        User currentUser = userService.getCurrentUser();
+        ClubMember currentMember =clubMemberService.getClubMemberByClubAndUser(club, currentUser);
+
+        // LEADER만 강퇴 가능
+        if (currentMember.getClubMemberRole() != ClubMemberRole.LEADER) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED_REQUEST);
+        }
+
+        ClubMember targetMember = clubMemberService.getClubMemberById(memberId);
+
+        // 같은 클럽의 멤버인지 확인
+        if (!targetMember.getClub().getClubId().equals(clubId)) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED_REQUEST);
+        }
+
+        // LEADER는 강퇴할 수 없음
+        if (targetMember.getClubMemberRole() == ClubMemberRole.LEADER) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED_REQUEST);
+        }
+        clubMemberService.deleteClubMember(targetMember);
+    }
+
+    @Transactional(readOnly = true)
+    public Club getClubById(Long clubId) {
+        return clubRepository.findById(clubId)
+                .orElseThrow(() -> new CustomException(ErrorCode.CLUB_NOT_FOUND));
+    }
+
+    // 마지막 읽은 시점
+    @Transactional(readOnly = true)
+    public LocalDateTime getLastReadAt(ClubMember clubMember) {
+        return clubMemberReadStatusRepository.findByClubMember(clubMember)
+                .map(ClubMemberReadStatus::getLastReadAt)
+                .orElse(LocalDateTime.MIN);
     }
 }

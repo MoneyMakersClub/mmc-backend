@@ -29,10 +29,9 @@ public enum ErrorCode {
     HOMECARD_BAD_REQUEST(400, "현재 카드 7개가 다 찼습니다."),
     READINGREPORT_NOT_VIEWABLE(400, "서재에 책이 없어 독서리포트를 볼 수 없습니다."),
     KEYWORD_NOT_VIEWABLE(400, "분석 가능한 키워드 갯수가 충분하지 않습니다."),
-    ALREADY_JOINED_CLUB(400, "이미 해당 클럽에 가입되어 있습니다."),
     CLUB_FULL(400, "클럽 정원이 가득 찼습니다."),
     CLUB_JOIN_NOT_ALLOWED(400, "현재 클럽 가입이 허용되지 않습니다."),
-    CLUB_NOT_ACTIVE(400, "활성화되지 않은 클럽입니다."),
+    CLUB_NOT_ACTIVE(400, "현재 클럽이 활성화 상태가 아닙니다."),
     CLUB_PASSWORD_INCORRECT(400, "클럽 비밀번호가 일치하지 않습니다."),
 
     // 401 Unauthorized
@@ -83,6 +82,7 @@ public enum ErrorCode {
     USERITEM_NOT_FOUND(404, "유저의 아이템을 찾을 수 없습니다."),
     GENRE_NOT_FOUND(404, "장르를 찾을 수 없습니다."),
     CLUB_NOT_FOUND(404, "북클럽을 찾을 수 없습니다"),
+    CLUB_MEMBER_NOT_FOUND(404, "북클럽 멤버를 찾을 수 없습니다."),
 
     // 409 Conflict
     // 중복 리소스 생성 시도
@@ -102,6 +102,7 @@ public enum ErrorCode {
     BADGE_ALREADY_EXISTS(409, "이미 존재하는 뱃지입니다."),
     ITEM_ALREADY_EXISTS(409, "이미 존재하는 아이템입니다."),
     ITEM_ALREADY_EQUIPPED(409, "이미 장착한 아이템입니다."),
+    ALREADY_JOINED_CLUB(409, "이미 가입된 클럽입니다."),
 
     // 500 Internal Server Error
     // 외부 API 사용 도중 에러

@@ -74,4 +74,28 @@ public class Club extends BaseTimeEntity {
     public void updateAllowJoin(Boolean allowJoin) {
         this.allowJoin = allowJoin;
     }
+
+    public void updateClubName(String clubName) {
+        this.clubName = clubName;
+    }
+
+    public void updateDescription(String description) {
+        this.description = description;
+    }
+
+    public void updatePassword(String password) {
+        this.password = password;
+    }
+
+    public void updateActiveStartAt(LocalDateTime activeStartAt) {
+        this.activeStartAt = activeStartAt;
+    }
+
+    public void updateActiveEndAt(LocalDateTime activeEndAt) {
+        this.activeEndAt = activeEndAt;
+    }
+
+    public void updateMaxMember(Integer maxMember) {
+        this.maxMember = maxMember;
+    }
 }
