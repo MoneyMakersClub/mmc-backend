@@ -6,6 +6,7 @@ import com.mmc.bookduck.domain.archive.repository.ExcerptRepository;
 import com.mmc.bookduck.domain.archive.repository.ReviewRepository;
 import com.mmc.bookduck.domain.book.entity.BookInfo;
 import com.mmc.bookduck.domain.book.service.BookInfoService;
+import com.mmc.bookduck.domain.club.dto.common.ClubBookInfoDto;
 import com.mmc.bookduck.domain.club.dto.common.ClubMemberRoleInfo;
 import com.mmc.bookduck.domain.club.dto.request.ClubCreateRequestDto;
 import com.mmc.bookduck.domain.club.dto.request.ClubJoinRequestDto;
@@ -192,7 +193,6 @@ public class ClubService {
             ClubUnreadSummaryResponseDto unreadSummary = getUnreadSummary(club.getClubId());
 
             int memberCount = Math.toIntExact(clubMemberService.countByClub(club));
-            String bookTitle = club.getBookInfo().getTitle();
 
             ClubJoinedResponseDto.LatestPost latestPost = null;
             if (unreadSummary.latestType() != null) {
@@ -206,8 +206,9 @@ public class ClubService {
 
             ClubJoinedResponseDto dto = ClubJoinedResponseDto.builder()
                     .clubId(club.getClubId())
+                    .clubStatus(club.getClubStatus())
                     .clubName(club.getClubName())
-                    .bookTitle(bookTitle)
+                    .clubBookInfoDto(ClubBookInfoDto.from(club.getBookInfo()))
                     .memberCount(memberCount)
                     .unreadCount(unreadSummary.unreadCount())
                     .latestPost(latestPost)
@@ -223,7 +224,11 @@ public class ClubService {
     public ClubSearchListResponseDto searchClubs(String keyword, ClubStatus status, Pageable pageable) {
         Page<Club> clubPage = clubRepository.searchClubs(keyword.trim(), status, pageable);
         // Club을 ClubSearchResponseDto로 변환
-        Page<ClubSearchResponseDto> dtoPage = clubPage.map(ClubSearchResponseDto::from);
+        Page<ClubSearchResponseDto> dtoPage = clubPage.map(club -> {
+            BookInfo bookInfo = club.getBookInfo();
+            int memberCount = Math.toIntExact(clubMemberService.countByClub(club));              // 현재 가입 인원
+            return ClubSearchResponseDto.from(club, bookInfo, memberCount);
+        });
         return ClubSearchListResponseDto.from(dtoPage);
     }
 
@@ -231,10 +236,11 @@ public class ClubService {
     @Transactional(readOnly = true)
     public ClubDetailResponseDto getClubDetail(Long clubId) {
         Club club = getClubById(clubId);
-        User currentUser = userService.getCurrentUser();
+        int memberCount = Math.toIntExact(clubMemberService.countByClub(club));
         // 멤버 여부 및 역할을 서비스에 위임
+        User currentUser = userService.getCurrentUser();
         ClubMemberRoleInfo roleInfo = clubMemberService.getMemberRoleInfo(club, currentUser);
-        return ClubDetailResponseDto.from(club, roleInfo.isMember(), roleInfo.memberRole());
+        return ClubDetailResponseDto.from(club, club.getBookInfo(), memberCount, roleInfo.isMember(), roleInfo.memberRole());
     }
 
     // 클럽 정보 수정

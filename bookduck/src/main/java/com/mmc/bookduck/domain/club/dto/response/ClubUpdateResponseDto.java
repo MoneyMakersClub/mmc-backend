@@ -5,6 +5,7 @@ import com.mmc.bookduck.domain.club.entity.ClubStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Builder
@@ -15,8 +16,8 @@ public record ClubUpdateResponseDto(
         @Schema(description = "클럽 소개") String description,
         @Schema(description = "클럽 상태") ClubStatus clubStatus,
         @Schema(description = "최대 가입 인원") Integer maxMember,
-        @Schema(description = "활동 시작 시각") LocalDateTime activeStartAt,
-        @Schema(description = "활동 종료 시각") LocalDateTime activeEndAt,
+        @Schema(description = "활동 시작 날짜") LocalDate activeStartDate,
+        @Schema(description = "활동 종료 날짜") LocalDate activeEndDate,
         @Schema(description = "가입 허용 여부") Boolean allowJoin,
         @Schema(description = "비밀번호 설정 여부") Boolean hasPassword
 ) {
@@ -27,8 +28,8 @@ public record ClubUpdateResponseDto(
                 .description(club.getDescription())
                 .clubStatus(club.getClubStatus())
                 .maxMember(club.getMaxMember())
-                .activeStartAt(club.getActiveStartAt())
-                .activeEndAt(club.getActiveEndAt())
+                .activeStartDate(LocalDate.from(club.getActiveStartAt()))
+                .activeEndDate(LocalDate.from(club.getActiveEndAt()))
                 .allowJoin(club.getAllowJoin())
                 .hasPassword(club.getPassword() != null && !club.getPassword().isEmpty())
                 .build();
