@@ -3,11 +3,15 @@ package com.mmc.bookduck.domain.bookclub.controller;
 import com.mmc.bookduck.domain.bookclub.dto.request.ClubCreateRequestDto;
 import com.mmc.bookduck.domain.bookclub.dto.request.ClubJoinRequestDto;
 import com.mmc.bookduck.domain.bookclub.dto.response.*;
+import com.mmc.bookduck.domain.bookclub.entity.ClubStatus;
 import com.mmc.bookduck.domain.bookclub.service.ClubService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -38,5 +42,14 @@ public class ClubController {
     @GetMapping("/joined")
     public ResponseEntity<List<ClubJoinedResponseDto>> getJoinedClubs() {
         return ResponseEntity.ok(clubService.getJoinedClubs());
+    }
+
+    @Operation(summary = "클럽 검색", description = "클럽명, 책 제목, 저자명으로 클럽을 검색합니다. 정렬 기준: 정확도순 > 가입인원순 > 최근생성순 > 곧종료순")
+    @GetMapping("/search")
+    public ResponseEntity<ClubSearchListResponseDto> searchClubs(
+            @RequestParam @NotBlank String keyword,
+            @RequestParam(defaultValue = "ACTIVE") ClubStatus status,
+            Pageable pageable) {
+        return ResponseEntity.ok(clubService.searchClubs(keyword, status, pageable));
     }
 }

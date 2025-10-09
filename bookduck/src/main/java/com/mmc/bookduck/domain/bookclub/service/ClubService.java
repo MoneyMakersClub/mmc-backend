@@ -60,7 +60,7 @@ public class ClubService {
                 .clubStatus(ClubStatus.ACTIVE)
                 .bookInfo(bookInfo)
                 .maxMember(requestDto.maxMember())
-                .allowJoin(requestDto.allowJoin())
+                .allowJoin(true)
                 .build();
         clubRepository.save(club);
 
@@ -259,5 +259,14 @@ public class ClubService {
         }
 
         return result;
+    }
+
+    // 클럽 검색
+    @Transactional(readOnly = true)
+    public ClubSearchListResponseDto searchClubs(String keyword, ClubStatus status, Pageable pageable) {
+        Page<Club> clubPage = clubRepository.searchClubs(keyword.trim(), status, pageable);
+        // Club을 ClubSearchResponseDto로 변환
+        Page<ClubSearchResponseDto> dtoPage = clubPage.map(ClubSearchResponseDto::from);
+        return ClubSearchListResponseDto.from(dtoPage);
     }
 }
