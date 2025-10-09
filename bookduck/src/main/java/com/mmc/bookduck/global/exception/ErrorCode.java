@@ -2,6 +2,7 @@ package com.mmc.bookduck.global.exception;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import org.springframework.http.HttpStatus;
 
 @Getter
 @AllArgsConstructor
@@ -28,6 +29,10 @@ public enum ErrorCode {
     HOMECARD_BAD_REQUEST(400, "현재 카드 7개가 다 찼습니다."),
     READINGREPORT_NOT_VIEWABLE(400, "서재에 책이 없어 독서리포트를 볼 수 없습니다."),
     KEYWORD_NOT_VIEWABLE(400, "분석 가능한 키워드 갯수가 충분하지 않습니다."),
+    CLUB_FULL(400, "클럽 정원이 가득 찼습니다."),
+    CLUB_JOIN_NOT_ALLOWED(400, "현재 클럽 가입이 허용되지 않습니다."),
+    CLUB_NOT_ACTIVE(400, "현재 클럽이 활성화 상태가 아닙니다."),
+    CLUB_PASSWORD_INCORRECT(400, "클럽 비밀번호가 일치하지 않습니다."),
 
     // 401 Unauthorized
     // 로그인 상태여야 하는 요청
@@ -51,6 +56,7 @@ public enum ErrorCode {
     FRIEND_REQUEST_DISABLED(403, "친구 요청이 비활성화된 사용자입니다."),
     // 권한이 없는 요청을 보냄
     UNAUTHORIZED_REQUEST(403,"권한이 없습니다."),
+    NOT_CLUB_MEMBER(403, "클럽 멤버가 아닙니다"),
 
     // 404 Not Found
     // 각 리소스를 찾지 못함
@@ -75,6 +81,8 @@ public enum ErrorCode {
     ITEM_NOT_FOUND(404, "아이템을 찾을 수 없습니다."),
     USERITEM_NOT_FOUND(404, "유저의 아이템을 찾을 수 없습니다."),
     GENRE_NOT_FOUND(404, "장르를 찾을 수 없습니다."),
+    CLUB_NOT_FOUND(404, "북클럽을 찾을 수 없습니다"),
+    CLUB_MEMBER_NOT_FOUND(404, "북클럽 멤버를 찾을 수 없습니다."),
 
     // 409 Conflict
     // 중복 리소스 생성 시도
@@ -94,6 +102,7 @@ public enum ErrorCode {
     BADGE_ALREADY_EXISTS(409, "이미 존재하는 뱃지입니다."),
     ITEM_ALREADY_EXISTS(409, "이미 존재하는 아이템입니다."),
     ITEM_ALREADY_EQUIPPED(409, "이미 장착한 아이템입니다."),
+    ALREADY_JOINED_CLUB(409, "이미 가입된 클럽입니다."),
 
     // 500 Internal Server Error
     // 외부 API 사용 도중 에러

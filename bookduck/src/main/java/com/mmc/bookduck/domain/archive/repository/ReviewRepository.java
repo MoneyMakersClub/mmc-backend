@@ -42,4 +42,13 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     long countByUserAndCreatedInYearAndHalf(@Param("user") User user, @Param("year") int year, @Param("isFirstHalf") boolean isFirstHalf);
 
     List<Review> findAllByUserBook(UserBook userBook);
+
+    @Query("""
+        SELECT r FROM Review r
+        WHERE r.user.userId IN :userIds
+          AND r.userBook.bookInfo.bookInfoId = :bookInfoId
+          AND r.createdTime BETWEEN :start AND :end
+    """)
+    List<Review> findClubReviews(Long bookInfoId, List<Long> userIds,
+                                 LocalDateTime start, LocalDateTime end);
 }
