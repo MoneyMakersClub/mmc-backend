@@ -208,7 +208,7 @@ public class ClubService {
                     .clubId(club.getClubId())
                     .clubStatus(club.getClubStatus())
                     .clubName(club.getClubName())
-                    .clubBookInfoDto(ClubBookInfoDto.from(club.getBookInfo()))
+                    .clubBookInfo(ClubBookInfoDto.from(club.getBookInfo()))
                     .memberCount(memberCount)
                     .unreadCount(unreadSummary.unreadCount())
                     .latestPost(latestPost)

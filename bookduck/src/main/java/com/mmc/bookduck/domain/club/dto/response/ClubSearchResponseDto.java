@@ -19,7 +19,7 @@ public record ClubSearchResponseDto(
         @Schema(description = "클럽 ID") Long clubId,
         @Schema(description = "클럽 상태") ClubStatus clubStatus,
         @Schema(description = "클럽명") String clubName,
-        @Schema(description = "책") ClubBookInfoDto clubBookInfoDto,
+        @Schema(description = "책") ClubBookInfoDto clubBookInfo,
         @Schema(description = "현재 가입 인원") Integer memberCount,
         @Schema(description = "최대 가입 인원") Integer maxMember,
         @Schema(description = "활동 시작 날짜") LocalDate activeStartDate,
@@ -34,7 +34,7 @@ public record ClubSearchResponseDto(
                 .maxMember(club.getMaxMember())
                 .activeStartDate(LocalDate.from(club.getActiveStartAt()))
                 .activeEndDate(LocalDate.from(club.getActiveEndAt()))
-                .clubBookInfoDto(ClubBookInfoDto.from(bookInfo))
+                .clubBookInfo(ClubBookInfoDto.from(bookInfo))
                 .build();
     }
 }

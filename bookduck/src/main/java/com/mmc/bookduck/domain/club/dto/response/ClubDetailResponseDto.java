@@ -24,7 +24,7 @@ public record ClubDetailResponseDto(
         @Schema(description = "가입 허용 여부") Boolean allowJoin,
         @Schema(description = "비밀번호 설정 여부") Boolean hasPassword,
         @Schema(description = "클럽 생성 시각") LocalDateTime createdAt,
-        @Schema(description = "책") ClubBookInfoDto clubBookInfoDto,
+        @Schema(description = "책") ClubBookInfoDto clubBookInfo,
         @Schema(description = "현재 사용자의 멤버 여부") Boolean isMember,
         @Schema(description = "현재 사용자의 멤버 역할") String memberRole
 ) {
@@ -41,7 +41,7 @@ public record ClubDetailResponseDto(
                 .allowJoin(club.getAllowJoin())
                 .hasPassword(club.getPassword() != null && !club.getPassword().isEmpty())
                 .createdAt(club.getCreatedTime())
-                .clubBookInfoDto(ClubBookInfoDto.from(bookInfo))
+                .clubBookInfo(ClubBookInfoDto.from(bookInfo))
                 .isMember(isMember)
                 .memberRole(memberRole)
                 .build();
