@@ -12,9 +12,12 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.net.URI;
 import java.util.List;
 
 @Tag(name = "Club", description = "북클럽 생성 및 가입 관련 API")
@@ -26,8 +29,15 @@ public class ClubController {
 
     @Operation(summary = "클럽 생성", description = "새로운 북클럽을 생성합니다.")
     @PostMapping
-    public ResponseEntity<ClubCreateResponseDto> createClub(@Valid @RequestBody ClubCreateRequestDto requestDto) {
-        return ResponseEntity.ok(clubService.createClub(requestDto));
+    public ResponseEntity<Long> createClub(@Valid @RequestBody ClubCreateRequestDto requestDto) {
+        Long clubId = clubService.createClub(requestDto);
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()      // 현재 /clubs
+                .path("/{clubId}")         // 경로 뒤에 /{clubId} 추가
+                .buildAndExpand(clubId)    // clubId 값 대입
+                .toUri();
+        return ResponseEntity.created(location)  // 201 Created + Location 헤더 포함
+                .body(clubId);                  // body에 clubId 리턴
     }
 
     @Operation(summary = "클럽 검색", description = "클럽명, 책 제목, 저자명으로 클럽을 검색합니다. 정렬 기준: 정확도순 > 가입인원순 > 최근생성순 > 곧종료순")
@@ -62,15 +72,16 @@ public class ClubController {
 
     @Operation(summary = "클럽 가입", description = "클럽 ID를 통해 북클럽에 가입합니다. 비밀번호 확인 절차를 거칩니다.")
     @PostMapping("/{clubId}/members")
-    public ResponseEntity<ClubJoinResponseDto> joinClub(
+    public ResponseEntity<Long> joinClub(
             @PathVariable Long clubId,
             @Valid @RequestBody ClubJoinRequestDto requestDto) {
-        return ResponseEntity.ok(clubService.joinClub(clubId, requestDto));
+        Long clubMemberId = clubService.joinClub(clubId, requestDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(clubMemberId);
     }
 
     @Operation(summary = "클럽 멤버 목록 조회", description = "클럽 멤버를 조회합니다.")
     @GetMapping("/{clubId}/members")
-    public ResponseEntity<ClubMembersResponseDto> getClubMembers(@PathVariable Long clubId) {
+    public ResponseEntity<ClubMemberListResponseDto> getClubMembers(@PathVariable Long clubId) {
         return ResponseEntity.ok(clubService.getClubMembers(clubId));
     }
 
@@ -90,7 +101,7 @@ public class ClubController {
 
     @Operation(summary = "내가 가입된 클럽 목록 조회", description = "현재 로그인한 사용자가 속한 모든 클럽 목록과, 각 클럽별 읽지 않은 글 수를 반환합니다.")
     @GetMapping("/joined")
-    public ResponseEntity<List<ClubJoinedResponseDto>> getJoinedClubs() {
+    public ResponseEntity<ClubJoinedListResponseDto> getJoinedClubs() {
         return ResponseEntity.ok(clubService.getJoinedClubs());
     }
 

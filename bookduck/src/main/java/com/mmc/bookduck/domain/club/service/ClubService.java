@@ -46,7 +46,7 @@ public class ClubService {
     private final ClubMemberService clubMemberService;
 
     // 클럽 생성
-    public ClubCreateResponseDto createClub(ClubCreateRequestDto requestDto) {
+    public Long createClub(ClubCreateRequestDto requestDto) {
         User currentUser = userService.getCurrentUser();
         BookInfo bookInfo = bookInfoService.getBookInfoById(requestDto.bookInfoId());
         // 클럽 생성
@@ -64,7 +64,7 @@ public class ClubService {
         clubRepository.save(club);
         // 클럽 리더 생성
         clubMemberService.createClubLeader(club, currentUser);
-        return ClubCreateResponseDto.from(club);
+        return club.getClubId();
     }
 
     @Transactional(readOnly = true)
@@ -153,7 +153,7 @@ public class ClubService {
     }
 
     // 클럽 가입
-    public ClubJoinResponseDto joinClub(Long clubId, ClubJoinRequestDto requestDto) {
+    public Long joinClub(Long clubId, ClubJoinRequestDto requestDto) {
         User currentUser = userService.getCurrentUser();
         Club club = getClubById(clubId);
 
@@ -171,13 +171,12 @@ public class ClubService {
         if (club.getPassword() != null && !club.getPassword().equals(requestDto.password())) {
             throw new CustomException(ErrorCode.CLUB_PASSWORD_INCORRECT);
         }
-
         ClubMember clubMember = clubMemberService.joinToClub(club, currentUser);
-        return ClubJoinResponseDto.from(club, clubMember);
+        return clubMember.getClubMemberId();
     }
 
     @Transactional(readOnly = true)
-    public List<ClubJoinedResponseDto> getJoinedClubs() {
+    public ClubJoinedListResponseDto getJoinedClubs() {
         User currentUser = userService.getCurrentUser();
 
         // 내가 속한 클럽 목록
@@ -215,8 +214,7 @@ public class ClubService {
 
             result.add(dto);
         }
-
-        return result;
+        return ClubJoinedListResponseDto.from(result);
     }
 
     // 클럽 검색
@@ -293,7 +291,7 @@ public class ClubService {
 
     // 클럽 멤버 목록 조회
     @Transactional(readOnly = true)
-    public ClubMembersResponseDto getClubMembers(Long clubId) {
+    public ClubMemberListResponseDto getClubMembers(Long clubId) {
         Club club = getClubById(clubId);
         User currentUser = userService.getCurrentUser();
 
@@ -301,7 +299,7 @@ public class ClubService {
         List<ClubMemberResponseDto> memberDtos = members.stream()
                 .map(ClubMemberResponseDto::from)
                 .toList();
-        return ClubMembersResponseDto.from(club.getClubId(), club.getClubName(), memberDtos);
+        return ClubMemberListResponseDto.from(club.getClubId(), club.getClubName(), memberDtos);
     }
 
     // 클럽 탈퇴
