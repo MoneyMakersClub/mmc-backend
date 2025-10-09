@@ -28,6 +28,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -54,8 +55,8 @@ public class ClubService {
                 .clubName(requestDto.clubName())
                 .password(requestDto.password())
                 .description(requestDto.description())
-                .activeStartAt(requestDto.activeStartAt())
-                .activeEndAt(requestDto.activeEndAt())
+                .activeStartAt(requestDto.activeStartDate().atStartOfDay())
+                .activeEndAt(requestDto.activeEndDate().atTime(LocalTime.MAX))
                 .clubStatus(ClubStatus.ACTIVE)
                 .bookInfo(bookInfo)
                 .maxMember(requestDto.maxMember())
@@ -255,13 +256,13 @@ public class ClubService {
         if (requestDto.password() != null) {
             club.updatePassword(requestDto.password());
         }
-        if (requestDto.activeStartAt() != null) {
-            club.updateActiveStartAt(requestDto.activeStartAt());
+        if (requestDto.activeStartDate() != null) {
+            club.updateActiveStartAt(requestDto.activeStartDate().atStartOfDay());
         }
-        if (requestDto.activeEndAt() != null) {
-            club.updateActiveEndAt(requestDto.activeEndAt());
+        if (requestDto.activeEndDate() != null) {
+            club.updateActiveEndAt(requestDto.activeEndDate().atTime(LocalTime.MAX));
         }
-        if (requestDto.maxMember() != null) {
+        if (requestDto.maxMember() != null && requestDto.maxMember() > 0) {
             club.updateMaxMember(requestDto.maxMember());
         }
         if (requestDto.allowJoin() != null) {
@@ -293,8 +294,6 @@ public class ClubService {
     @Transactional(readOnly = true)
     public ClubMemberListResponseDto getClubMembers(Long clubId) {
         Club club = getClubById(clubId);
-        User currentUser = userService.getCurrentUser();
-
         List<ClubMember> members = clubMemberService.getClubMembersByClub(club);
         List<ClubMemberResponseDto> memberDtos = members.stream()
                 .map(ClubMemberResponseDto::from)
