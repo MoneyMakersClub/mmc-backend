@@ -90,11 +90,9 @@ public class ClubMemberService {
 
     @Transactional(readOnly = true)
     public ClubMemberRoleInfo getMemberRoleInfo(Club club, User user) {
-        boolean isMember = clubMemberRepository.existsByClubAndUser(club, user);
-        String memberRole = clubMemberRepository.findByClubAndUser(club, user)
-                .map(cm -> cm.getClubMemberRole().name())
-                .orElse(null);
-        return new ClubMemberRoleInfo(isMember, memberRole);
+        return clubMemberRepository.findByClubAndUser(club, user)
+                .map(clubMember -> new ClubMemberRoleInfo(true, clubMember.getClubMemberRole().name()))
+                .orElseGet(() -> new ClubMemberRoleInfo(false, null));
     }
 
     @Transactional(readOnly = true)
