@@ -3,15 +3,11 @@ package com.mmc.bookduck.domain.club.dto.response;
 import com.mmc.bookduck.domain.book.entity.BookInfo;
 import com.mmc.bookduck.domain.club.dto.common.ClubBookInfoDto;
 import com.mmc.bookduck.domain.club.entity.Club;
-import com.mmc.bookduck.domain.club.entity.ClubMember;
 import com.mmc.bookduck.domain.club.entity.ClubStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 
-import java.awt.print.Book;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
 
 @Builder
 @Schema(description = "클럽 검색 응답 DTO")

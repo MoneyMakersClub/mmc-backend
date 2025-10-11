@@ -8,7 +8,7 @@ import org.springframework.data.domain.Page;
 @Builder
 @Schema(description = "클럽 검색 목록 응답 DTO")
 public record ClubSearchListResponseDto(
-        @Schema(description = "검색된 클럽 목록") PaginatedResponseDto<ClubSearchResponseDto> clubs
+        @Schema(description = "클럽 목록") PaginatedResponseDto<ClubSearchResponseDto> clubs
 ) {
     public static ClubSearchListResponseDto from(Page<ClubSearchResponseDto> clubPage) {
         return ClubSearchListResponseDto.builder()
