@@ -25,7 +25,8 @@ public record UserArchiveResponseDto(
     ) {}
     public record ArchiveWithoutTitleAuthor(
             ArchiveType type, // EXCERPT, REVIEW
-            Object data // ExcerptResponseDto, ReviewResponseDto
+            Object data, // ExcerptResponseDto, ReviewResponseDto
+            Long archiveId
     ) {}
     public static UserArchiveResponseDto from(Page<ArchiveWithType> archivePage) {
         return new UserArchiveResponseDto(

@@ -10,6 +10,7 @@ import com.mmc.bookduck.domain.archive.entity.Excerpt;
 import com.mmc.bookduck.domain.archive.entity.Review;
 import com.mmc.bookduck.domain.archive.repository.ExcerptRepository;
 import com.mmc.bookduck.domain.archive.repository.ReviewRepository;
+import com.mmc.bookduck.domain.archive.service.ArchiveService;
 import com.mmc.bookduck.domain.badge.service.BadgeUnlockService;
 import com.mmc.bookduck.domain.book.dto.common.BookCoverImageUnitDto;
 import com.mmc.bookduck.domain.book.dto.common.BookUnitParseDto;
@@ -74,6 +75,7 @@ public class BookInfoService {
     private final UserBookRepository userBookRepository;
     private final ReviewRepository reviewRepository;
     private final ExcerptRepository excerptRepository;
+    private final ArchiveService archiveService;
     private final GenreService genreService;
     private final GoogleBooksApiService googleBooksApiService;
     private final UserService userService;
@@ -498,10 +500,12 @@ public class BookInfoService {
         List<Excerpt> excerpts = excerptRepository.findExcerptsByUserBookWithPublic(userBook);
         List<Review> reviews = reviewRepository.findReviewsByUserBookWithPublic(userBook);
         for(Excerpt excerpt : excerpts){
-            archiveList.add(new UserArchiveResponseDto.ArchiveWithoutTitleAuthor(EXCERPT, ExcerptResponseDto.from(excerpt)));
+            Long archiveId = archiveService.findArchiveByType(excerpt.getExcerptId(), EXCERPT).getArchiveId();
+            archiveList.add(new UserArchiveResponseDto.ArchiveWithoutTitleAuthor(EXCERPT, ExcerptResponseDto.from(excerpt), archiveId));
         }
         for(Review review : reviews){
-            archiveList.add(new UserArchiveResponseDto.ArchiveWithoutTitleAuthor(REVIEW, ReviewResponseDto.from(review)));
+            Long archiveId = archiveService.findArchiveByType(review.getReviewId(), REVIEW).getArchiveId();
+            archiveList.add(new UserArchiveResponseDto.ArchiveWithoutTitleAuthor(REVIEW, ReviewResponseDto.from(review), archiveId));
         }
 
         List<UserArchiveResponseDto.ArchiveWithoutTitleAuthor> sortedArchiveList = sortByCreatedTime(archiveList);
@@ -525,10 +529,12 @@ public class BookInfoService {
         List<Excerpt> excerpts = excerptRepository.findExcerptByUserBookOrderByCreatedTimeDesc(userBook);
         List<Review> reviews = reviewRepository.findReviewByUserBookOrderByCreatedTimeDesc(userBook);
         for(Excerpt excerpt : excerpts){
-            archiveList.add(new UserArchiveResponseDto.ArchiveWithoutTitleAuthor(EXCERPT, ExcerptResponseDto.from(excerpt)));
+            Long archiveId = archiveService.findArchiveByType(excerpt.getExcerptId(), EXCERPT).getArchiveId();
+            archiveList.add(new UserArchiveResponseDto.ArchiveWithoutTitleAuthor(EXCERPT, ExcerptResponseDto.from(excerpt), archiveId));
         }
         for(Review review : reviews){
-            archiveList.add(new UserArchiveResponseDto.ArchiveWithoutTitleAuthor(REVIEW, ReviewResponseDto.from(review)));
+            Long archiveId = archiveService.findArchiveByType(review.getReviewId(), REVIEW).getArchiveId();
+            archiveList.add(new UserArchiveResponseDto.ArchiveWithoutTitleAuthor(REVIEW, ReviewResponseDto.from(review), archiveId));
         }
 
         List<UserArchiveResponseDto.ArchiveWithoutTitleAuthor> sortedArchiveList = sortByCreatedTime(archiveList);
