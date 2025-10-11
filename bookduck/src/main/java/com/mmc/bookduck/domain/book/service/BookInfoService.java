@@ -8,9 +8,9 @@ import com.mmc.bookduck.domain.archive.dto.response.UserArchiveResponseDto;
 import com.mmc.bookduck.domain.archive.dto.response.UserArchiveResponseDto.ArchiveWithoutTitleAuthor;
 import com.mmc.bookduck.domain.archive.entity.Excerpt;
 import com.mmc.bookduck.domain.archive.entity.Review;
+import com.mmc.bookduck.domain.archive.repository.ArchiveRepository;
 import com.mmc.bookduck.domain.archive.repository.ExcerptRepository;
 import com.mmc.bookduck.domain.archive.repository.ReviewRepository;
-import com.mmc.bookduck.domain.archive.service.ArchiveService;
 import com.mmc.bookduck.domain.badge.service.BadgeUnlockService;
 import com.mmc.bookduck.domain.book.dto.common.BookCoverImageUnitDto;
 import com.mmc.bookduck.domain.book.dto.common.BookUnitParseDto;
@@ -75,7 +75,7 @@ public class BookInfoService {
     private final UserBookRepository userBookRepository;
     private final ReviewRepository reviewRepository;
     private final ExcerptRepository excerptRepository;
-    private final ArchiveService archiveService;
+    private final ArchiveRepository archiveRepository;
     private final GenreService genreService;
     private final GoogleBooksApiService googleBooksApiService;
     private final UserService userService;
@@ -500,11 +500,15 @@ public class BookInfoService {
         List<Excerpt> excerpts = excerptRepository.findExcerptsByUserBookWithPublic(userBook);
         List<Review> reviews = reviewRepository.findReviewsByUserBookWithPublic(userBook);
         for(Excerpt excerpt : excerpts){
-            Long archiveId = archiveService.findArchiveByType(excerpt.getExcerptId(), EXCERPT).getArchiveId();
+            Long archiveId = archiveRepository.findByExcerpt_ExcerptId(excerpt.getExcerptId())
+                    .orElseThrow(() -> new CustomException(ErrorCode.EXCERPT_NOT_FOUND))
+                    .getArchiveId();
             archiveList.add(new UserArchiveResponseDto.ArchiveWithoutTitleAuthor(EXCERPT, ExcerptResponseDto.from(excerpt), archiveId));
         }
         for(Review review : reviews){
-            Long archiveId = archiveService.findArchiveByType(review.getReviewId(), REVIEW).getArchiveId();
+            Long archiveId = archiveRepository.findByReview_ReviewId(review.getReviewId())
+                    .orElseThrow(() -> new CustomException(ErrorCode.REVIEW_NOT_FOUND))
+                    .getArchiveId();
             archiveList.add(new UserArchiveResponseDto.ArchiveWithoutTitleAuthor(REVIEW, ReviewResponseDto.from(review), archiveId));
         }
 
@@ -529,11 +533,15 @@ public class BookInfoService {
         List<Excerpt> excerpts = excerptRepository.findExcerptByUserBookOrderByCreatedTimeDesc(userBook);
         List<Review> reviews = reviewRepository.findReviewByUserBookOrderByCreatedTimeDesc(userBook);
         for(Excerpt excerpt : excerpts){
-            Long archiveId = archiveService.findArchiveByType(excerpt.getExcerptId(), EXCERPT).getArchiveId();
+            Long archiveId = archiveRepository.findByExcerpt_ExcerptId(excerpt.getExcerptId())
+                    .orElseThrow(() -> new CustomException(ErrorCode.EXCERPT_NOT_FOUND))
+                    .getArchiveId();
             archiveList.add(new UserArchiveResponseDto.ArchiveWithoutTitleAuthor(EXCERPT, ExcerptResponseDto.from(excerpt), archiveId));
         }
         for(Review review : reviews){
-            Long archiveId = archiveService.findArchiveByType(review.getReviewId(), REVIEW).getArchiveId();
+            Long archiveId = archiveRepository.findByReview_ReviewId(review.getReviewId())
+                    .orElseThrow(() -> new CustomException(ErrorCode.REVIEW_NOT_FOUND))
+                    .getArchiveId();
             archiveList.add(new UserArchiveResponseDto.ArchiveWithoutTitleAuthor(REVIEW, ReviewResponseDto.from(review), archiveId));
         }
 
