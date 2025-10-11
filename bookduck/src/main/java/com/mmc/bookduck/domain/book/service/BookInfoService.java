@@ -320,7 +320,17 @@ public class BookInfoService {
         }
     }
 
-    // custom 기본 정보
+    /**
+     * Retrieve a basic view of a custom book, including owner-specific rating and one-line visibility.
+     *
+     * Returns a DTO representing the custom BookInfo and its associated UserBook for the book's creator.
+     * If the caller is the creator, the DTO includes the caller's rating, one-line id, and one-line content with visibility set to true;
+     * otherwise the DTO contains the creator's UserBook reference and visibility set to false.
+     *
+     * @param bookInfoId the id of the custom BookInfo to retrieve
+     * @return a CustomBookResponseDto with creator's UserBook and owner-specific visibility/rating/one-line data
+     * @throws CustomException if the specified BookInfo is not a custom book (no creator) or if the creator's UserBook is not found
+     */
     @Transactional(readOnly = true)
     public CustomBookResponseDto getCustomBookBasic(Long bookInfoId) {
         User user = userService.getCurrentUser();
@@ -339,6 +349,12 @@ public class BookInfoService {
         return new CustomBookResponseDto(userBook, false); // 다른 유저가 customBook 보는 것 가능
     }
 
+    /**
+     * Calculates the average user rating for the given book, excluding ratings equal to 0.
+     *
+     * @param bookInfo the book for which to compute the average rating
+     * @return the average rating rounded to one decimal place using HALF_UP, or `null` if no non-zero ratings exist
+     */
     @Transactional(readOnly = true)
     public Double getRatingAverage(BookInfo bookInfo) {
         double totalRating = 0.0;

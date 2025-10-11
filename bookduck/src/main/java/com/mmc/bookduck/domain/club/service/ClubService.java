@@ -47,7 +47,12 @@ public class ClubService {
     private final ReviewRepository reviewRepository;
     private final ClubMemberService clubMemberService;
 
-    // 클럽 생성
+    /**
+     * Create a new club and its leader based on the provided request data.
+     *
+     * @param requestDto the club creation payload containing club name, description, bookInfoId, active date range, optional password, and maximum members
+     * @return the created club's ID
+     */
     public Long createClub(ClubCreateRequestDto requestDto) {
         User currentUser = userService.getCurrentUser();
         BookInfo bookInfo = bookInfoService.getBookInfoById(requestDto.bookInfoId());
@@ -154,7 +159,14 @@ public class ClubService {
         return ClubUnreadSummaryResponseDto.from(unread.size(), latest);
     }
 
-    // 클럽 가입
+    /**
+     * Adds the current user as a member of the specified club.
+     *
+     * @param clubId the identifier of the club to join
+     * @param requestDto DTO containing join parameters (e.g., club password)
+     * @return the newly created club member's ID
+     * @throws CustomException if joining is not allowed, the club is not active, or the provided password is incorrect
+     */
     public Long joinClub(Long clubId, ClubJoinRequestDto requestDto) {
         User currentUser = userService.getCurrentUser();
         Club club = getClubById(clubId);
@@ -233,7 +245,12 @@ public class ClubService {
         return ClubSearchListResponseDto.from(dtoPage);
     }
 
-    // 클럽 상세 조회
+    /**
+     * Retrieve detailed information for a club including book info, member count, and the requesting user's membership status and role.
+     *
+     * @param clubId the identifier of the club to retrieve
+     * @return a ClubDetailResponseDto containing the club, its BookInfo, current member count, a flag indicating whether the requester is a member, and the requester's role
+     */
     @Transactional(readOnly = true)
     public ClubDetailResponseDto getClubDetail(Long clubId) {
         Club club = getClubById(clubId);

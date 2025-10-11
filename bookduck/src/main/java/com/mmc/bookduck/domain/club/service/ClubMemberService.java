@@ -27,7 +27,19 @@ public class ClubMemberService {
     private final ClubMemberRepository clubMemberRepository;
     private final UserBookRepository userBookRepository;
 
-    // 클럽 멤버 생성
+    /**
+     * Create and persist a ClubMember with the given role and ensure the user's UserBook for the provided BookInfo
+     * exists and has a read status of READING.
+     *
+     * If no UserBook exists for the user and BookInfo, one is created with ReadStatus.READING. If an existing
+     * UserBook has ReadStatus.NOT_STARTED, its status is changed to ReadStatus.READING.
+     *
+     * @param club the club to join
+     * @param bookInfo the book information associated with the club membership
+     * @param user the user to add as a club member
+     * @param role the role to assign to the new club member
+     * @return the persisted ClubMember
+     */
     private ClubMember createClubMemberAndAddUserBook(Club club, BookInfo bookInfo, User user, ClubMemberRole role) {
         ClubMember clubMember = ClubMember.builder()
                 .club(club)
@@ -48,12 +60,28 @@ public class ClubMemberService {
         return clubMemberRepository.save(clubMember);
     }
 
-    // 클럽 리더 생성
+    /**
+     * Create and persist a club member with the LEADER role and ensure the user's UserBook for the club's book is created or updated.
+     *
+     * Ensures a ClubMember with role LEADER is saved for the given club and user; also creates a UserBook for the provided BookInfo with ReadStatus.READING if one does not exist or updates an existing UserBook with status NOT_STARTED to READING.
+     *
+     * @param club the club to which the leader will belong
+     * @param bookInfo information about the book associated with the club
+     * @param user the user to assign as club leader
+     * @return the persisted ClubMember representing the new club leader
+     */
     public ClubMember createClubLeader(Club club, BookInfo bookInfo, User user) {
         return createClubMemberAndAddUserBook(club, bookInfo, user, ClubMemberRole.LEADER);
     }
 
-    // 클럽 가입하기
+    /**
+     * Add a user to the given club with the MEMBER role and ensure the user's UserBook for the club's book is created or updated.
+     *
+     * @param bookInfo the book information for the club's current book; used to create or update the user's UserBook
+     * @return the persisted ClubMember representing the new membership
+     * @throws CustomException with ErrorCode.ALREADY_JOINED_CLUB if the user is already a member
+     * @throws CustomException with ErrorCode.CLUB_FULL if the club has reached its maximum member capacity
+     */
     public ClubMember joinToClub(Club club, BookInfo bookInfo, User user) {
         // 이미 가입한 멤버인지 확인
         boolean alreadyJoined = clubMemberRepository.existsByClubAndUser(club, user);

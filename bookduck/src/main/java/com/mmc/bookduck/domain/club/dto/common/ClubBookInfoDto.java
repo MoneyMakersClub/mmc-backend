@@ -12,6 +12,12 @@ public record ClubBookInfoDto (
         @Schema(description = "책 저자") String bookAuthor,
         @Schema(description = "커스텀책 여부") Boolean isCustom
 ) {
+    /**
+     * Create a ClubBookInfoDto from a BookInfo by mapping its fields and deriving the `isCustom` flag.
+     *
+     * @param bookInfo the source BookInfo to map values from
+     * @return a ClubBookInfoDto with `bookInfoId`, `bookImgPath`, `bookTitle`, and `bookAuthor` copied from the source; `isCustom` is `true` if `bookInfo.getCreatedUserId()` is not null, `false` otherwise
+     */
     public static ClubBookInfoDto from(BookInfo bookInfo) {
         return ClubBookInfoDto.builder()
                 .bookInfoId(bookInfo.getBookInfoId())
