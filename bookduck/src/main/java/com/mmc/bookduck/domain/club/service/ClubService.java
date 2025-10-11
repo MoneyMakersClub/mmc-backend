@@ -354,4 +354,17 @@ public class ClubService {
                 .map(ClubMemberReadStatus::getLastReadAt)
                 .orElse(LocalDateTime.MIN);
     }
+
+    @Transactional(readOnly = true)
+    public ClubSearchListResponseDto findRecentActiveClubs(Pageable pageable) {
+        Page<Club> clubPage = clubRepository.findByStatusOrderByCreatedAtDesc(ClubStatus.ACTIVE, pageable);
+
+        Page<ClubSearchResponseDto> dtoPage = clubPage.map(club -> {
+            BookInfo bookInfo = club.getBookInfo();
+            int memberCount = Math.toIntExact(clubMemberService.countByClub(club));  // 현재 가입 인원 수
+            return ClubSearchResponseDto.from(club, bookInfo, memberCount);
+        });
+
+        return ClubSearchListResponseDto.from(dtoPage);
+    }
 }
