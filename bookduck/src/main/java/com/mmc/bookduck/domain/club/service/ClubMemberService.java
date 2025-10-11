@@ -4,7 +4,6 @@ import com.mmc.bookduck.domain.book.entity.BookInfo;
 import com.mmc.bookduck.domain.book.entity.ReadStatus;
 import com.mmc.bookduck.domain.book.entity.UserBook;
 import com.mmc.bookduck.domain.book.repository.UserBookRepository;
-import com.mmc.bookduck.domain.book.service.BookInfoService;
 import com.mmc.bookduck.domain.club.dto.common.ClubMemberRoleInfo;
 import com.mmc.bookduck.domain.club.entity.Club;
 import com.mmc.bookduck.domain.club.entity.ClubMember;
