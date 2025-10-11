@@ -357,7 +357,7 @@ public class ClubService {
 
     @Transactional(readOnly = true)
     public ClubSearchListResponseDto findRecentActiveClubs(Pageable pageable) {
-        Page<Club> clubPage = clubRepository.findByClubStatusOrderByActiveStartAtDesc(ClubStatus.ACTIVE, pageable);
+        Page<Club> clubPage = clubRepository.findByClubStatusOrderByCreatedTimeDesc(ClubStatus.ACTIVE, pageable);
 
         Page<ClubSearchResponseDto> dtoPage = clubPage.map(club -> {
             BookInfo bookInfo = club.getBookInfo();

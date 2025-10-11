@@ -38,5 +38,5 @@ public interface ClubRepository extends JpaRepository<Club, Long> {
     List<Club> findByClubStatusAndActiveEndAtBefore(@Param("status") ClubStatus status,
                                                     @Param("now") LocalDateTime now);
 
-    Page<Club> findByClubStatusOrderByActiveStartAtDesc(ClubStatus status, Pageable pageable);
+    Page<Club> findByClubStatusOrderByCreatedTimeDesc(ClubStatus status, Pageable pageable);
 }
