@@ -24,7 +24,7 @@ public class ClubStatusScheduler {
     @Transactional
     public void updateExpiredClubs() {
         try {
-            List<Club> expiredClubs = clubRepository.findByStatusAndActiveEndAtBefore(
+            List<Club> expiredClubs = clubRepository.findByClubStatusAndActiveEndAtBefore(
                     ClubStatus.ACTIVE, LocalDateTime.now());
             if (expiredClubs.isEmpty()) {
                 log.info("종료된 클럽 없음.");
