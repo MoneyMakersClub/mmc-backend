@@ -332,14 +332,11 @@ public class BookInfoService {
         User bookInfoCreaterUser = userService.getActiveUserByUserId(bookInfo.getCreatedUserId());
         UserBook userBook = getUserBookByUserAndBookInfo(bookInfo, bookInfoCreaterUser);
 
-        if(bookInfo.getCreatedUserId().equals(user.getUserId())){ // 내 customBook
+        if(bookInfo.getCreatedUserId().equals(user.getUserId())) { // 내 customBook
             MyRatingOneLineReadStatusDto myRatingOneLine = getMyRatingOneLineReadStatus(bookInfo, user);
             return new CustomBookResponseDto(userBook, myRatingOneLine.myRating(),myRatingOneLine.oneLineId(), myRatingOneLine.myOneLine(), true);
-        }else if(isFriend(user,bookInfoCreaterUser)){ //친구 customBook
-            return new CustomBookResponseDto(userBook, false);
-        }else{
-            throw new CustomException(ErrorCode.UNAUTHORIZED_REQUEST); //내것도 아니고 친구것도 아닌 경우
         }
+        return new CustomBookResponseDto(userBook, false); // 다른 유저가 customBook 보는 것 가능
     }
 
     @Transactional(readOnly = true)
