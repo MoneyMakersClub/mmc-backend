@@ -65,7 +65,7 @@ public class ClubService {
                 .build();
         clubRepository.save(club);
         // 클럽 리더 생성
-        clubMemberService.createClubLeader(club, currentUser);
+        clubMemberService.createClubLeader(club, bookInfo, currentUser);
         return club.getClubId();
     }
 
@@ -158,6 +158,7 @@ public class ClubService {
     public Long joinClub(Long clubId, ClubJoinRequestDto requestDto) {
         User currentUser = userService.getCurrentUser();
         Club club = getClubById(clubId);
+        BookInfo bookInfo = club.getBookInfo();
 
         // 클럽 가입 허용 여부 확인
         if (!club.getAllowJoin()) {
@@ -173,7 +174,7 @@ public class ClubService {
         if (club.getPassword() != null && !club.getPassword().equals(requestDto.password())) {
             throw new CustomException(ErrorCode.CLUB_PASSWORD_INCORRECT);
         }
-        ClubMember clubMember = clubMemberService.joinToClub(club, currentUser);
+        ClubMember clubMember = clubMemberService.joinToClub(club, bookInfo, currentUser);
         return clubMember.getClubMemberId();
     }
 
@@ -237,7 +238,6 @@ public class ClubService {
     public ClubDetailResponseDto getClubDetail(Long clubId) {
         Club club = getClubById(clubId);
         int memberCount = Math.toIntExact(clubMemberService.countByClub(club));
-        // 멤버 여부 및 역할을 서비스에 위임
         User currentUser = userService.getCurrentUser();
         ClubMemberRoleInfo roleInfo = clubMemberService.getMemberRoleInfo(club, currentUser);
         return ClubDetailResponseDto.from(club, club.getBookInfo(), memberCount, roleInfo.isMember(), roleInfo.memberRole());
@@ -356,8 +356,19 @@ public class ClubService {
     }
 
     @Transactional(readOnly = true)
-    public ClubSearchListResponseDto findRecentActiveClubs(Pageable pageable) {
-        Page<Club> clubPage = clubRepository.findByClubStatusOrderByCreatedTimeDesc(ClubStatus.ACTIVE, pageable);
+    public ClubSearchListResponseDto findRecentActiveClubs(Pageable pageable, String sort) {
+        Page<Club> clubPage;
+    
+        if (!"latest".equalsIgnoreCase(sort) && !"popular".equalsIgnoreCase(sort)) {
+            throw new CustomException(ErrorCode.INVALID_SORT_PARAMETER);
+        }
+        if ("popular".equalsIgnoreCase(sort)) {
+            // 인기순: 정원 마감률 높은 순 + 최신순
+            clubPage = clubRepository.findByClubStatusOrderByPopularityDesc(ClubStatus.ACTIVE, pageable);
+        } else {
+            // 최신순
+            clubPage = clubRepository.findByClubStatusOrderByCreatedTimeDesc(ClubStatus.ACTIVE, pageable);
+        }
 
         Page<ClubSearchResponseDto> dtoPage = clubPage.map(club -> {
             BookInfo bookInfo = club.getBookInfo();
