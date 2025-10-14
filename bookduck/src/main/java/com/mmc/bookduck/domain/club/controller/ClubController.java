@@ -42,8 +42,10 @@ public class ClubController {
 
     @Operation(summary = "최근 모집 중인 클럽 보기", description = "최근 생성된, 모집 중인 클럽을 표시합니다.")
     @GetMapping("/new")
-    public ResponseEntity<ClubSearchListResponseDto> findRecentActiveClubs(Pageable pageable) {
-        return ResponseEntity.ok(clubService.findRecentActiveClubs(pageable));
+    public ResponseEntity<ClubSearchListResponseDto> findRecentActiveClubs(
+            @RequestParam(defaultValue = "latest") String sort,
+            Pageable pageable) {
+        return ResponseEntity.ok(clubService.findRecentActiveClubs(pageable, sort));
     }
 
     @Operation(summary = "클럽 검색", description = "클럽명, 책 제목, 저자명으로 클럽을 검색합니다. 정렬 기준: 정확도순 > 가입인원순 > 최근생성순 > 곧종료순")

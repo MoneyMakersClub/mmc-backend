@@ -38,5 +38,19 @@ public interface ClubRepository extends JpaRepository<Club, Long> {
     List<Club> findByClubStatusAndActiveEndAtBefore(@Param("status") ClubStatus status,
                                                     @Param("now") LocalDateTime now);
 
-    Page<Club> findByClubStatusOrderByCreatedTimeDesc(ClubStatus status, Pageable pageable);
+    // 최신순
+    @Query("SELECT c FROM Club c " +
+           "WHERE c.clubStatus = :status " +
+           "AND (SELECT COUNT(cm) FROM ClubMember cm WHERE cm.club = c) < c.maxMember " +
+           "ORDER BY c.createdTime DESC")
+    Page<Club> findByClubStatusOrderByCreatedTimeDesc(@Param("status") ClubStatus status, Pageable pageable);
+
+    // 인기순
+    @Query("SELECT c FROM Club c " +
+           "WHERE c.clubStatus = :status " +
+           "AND (SELECT COUNT(cm) FROM ClubMember cm WHERE cm.club = c) < c.maxMember " +
+           "ORDER BY " +
+           "(SELECT COUNT(cm) FROM ClubMember cm WHERE cm.club = c) * 1.0 / c.maxMember DESC, " +
+           "c.createdTime DESC")
+    Page<Club> findByClubStatusOrderByPopularityDesc(@Param("status") ClubStatus status, Pageable pageable);
 }
