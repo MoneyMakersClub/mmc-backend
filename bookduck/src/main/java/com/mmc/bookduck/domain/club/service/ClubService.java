@@ -356,13 +356,13 @@ public class ClubService {
     }
 
     @Transactional(readOnly = true)
-    public ClubSearchListResponseDto findRecentActiveClubs(Pageable pageable, String sort) {
+    public ClubSearchListResponseDto findRecentActiveClubs(Pageable pageable, String orderBy) {
         Page<Club> clubPage;
     
-        if (!"latest".equalsIgnoreCase(sort) && !"popular".equalsIgnoreCase(sort)) {
+        if (!"latest".equalsIgnoreCase(orderBy) && !"popular".equalsIgnoreCase(orderBy)) {
             throw new CustomException(ErrorCode.INVALID_SORT_PARAMETER);
         }
-        if ("popular".equalsIgnoreCase(sort)) {
+        if ("popular".equalsIgnoreCase(orderBy)) {
             // 인기순: 정원 마감률 높은 순 + 최신순
             clubPage = clubRepository.findByClubStatusOrderByPopularityDesc(ClubStatus.ACTIVE, pageable);
         } else {
