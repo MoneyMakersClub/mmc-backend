@@ -1,0 +1,37 @@
+language: "ko-KR"
+early_access: false
+reviews:
+  profile: "chill"
+  request_changes_workflow: false
+  high_level_summary: true
+  high_level_summary_placeholder: "@coderabbitai summary"
+  high_level_summary_in_walkthrough: false
+  pr_description_template: |
+
+    ---
+
+    ## Summary By Coderabbit
+    {{summary}}
+  auto_title_placeholder: "@coderabbitai"
+  review_status: true
+  commit_status: false
+  fail_commit_status: false
+  collapse_walkthrough: true
+  changed_files_summary: true
+  sequence_diagrams: false
+  assess_linked_issues: true
+  related_issues: true
+  related_prs: false
+  suggested_labels: true
+  auto_apply_labels: true
+  suggested_reviewers: false
+  auto_assign_reviewers: false
+  poem: false
+  auto_review:
+    enabled: true
+    drafts: true
+  finishing_touches:
+    abort_on_close: true
+    disable_cache: false
+chat:
+  auto_reply: true
