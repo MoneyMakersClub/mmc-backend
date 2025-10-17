@@ -75,7 +75,7 @@ public class ClubService {
     }
 
     @Transactional(readOnly = true)
-    public ClubArchiveListResponseDto getClubArchives(Long clubId, Pageable pageable) {
+    public ClubArchiveListResponseDto getClubArchives(Long clubId, Long memberId, Pageable pageable) {
         User currentUser = userService.getCurrentUser();
         Club club = getClubById(clubId);
         // 클럽 멤버 및 상태 조회
@@ -83,12 +83,24 @@ public class ClubService {
         LocalDateTime lastReadAt = markAsReadAndGetLastReadAt(currentMember);
         BookInfo targetBook = club.getBookInfo();
 
-        // 클럽 멤버 전체 userId 추출
-        List<Long> memberUserIds = clubMemberService.getClubMembersByClub(club).stream()
-                .map(cm -> cm.getUser().getUserId())
-                .toList();
+        // 클럽 멤버 userId 추출 (memberId 필터링 적용)
+        List<Long> memberUserIds;
+        if (memberId != null) {
+            // 특정 멤버만 필터링
+            ClubMember targetMember = clubMemberService.getClubMemberById(memberId);
+            // 해당 멤버가 이 클럽에 속하는지 확인
+            if (!targetMember.getClub().getClubId().equals(clubId)) {
+                throw new CustomException(ErrorCode.CLUB_MEMBER_NOT_FOUND);
+            }
+            memberUserIds = List.of(targetMember.getUser().getUserId());
+        } else {
+            // 전체 멤버
+            memberUserIds = clubMemberService.getClubMembersByClub(club).stream()
+                    .map(cm -> cm.getUser().getUserId())
+                    .toList();
+        }
 
-        // 전체 Excerpt / Review 조회 (읽음 여부 필터 제거)
+        // Excerpt / Review 조회
         List<Excerpt> excerpts = excerptRepository.findClubExcerpts(
                 targetBook.getBookInfoId(),
                 memberUserIds,
