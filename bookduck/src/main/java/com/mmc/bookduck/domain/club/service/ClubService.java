@@ -284,7 +284,7 @@ public class ClubService {
         return ClubUpdateResponseDto.from(club);
     }
 
-    // 클럽 삭제 (비활성화)
+    // 클럽 삭제
     public void deleteClub(Long clubId) {
         Club club = getClubById(clubId);
 
@@ -296,9 +296,12 @@ public class ClubService {
             throw new CustomException(ErrorCode.UNAUTHORIZED_REQUEST);
         }
 
-        // 클럽 상태를 DELETED로 변경 (실제 삭제는 하지 않음)
-        club.updateStatus(ClubStatus.DELETED);
-        clubRepository.save(club);
+        // 클럽이 비어 있을 때만 삭제 가능
+        List<ClubMember> members = clubMemberService.getClubMembersByClub(club);
+        if (members.size() != 1 || !members.get(0).equals(member)) {
+            throw new CustomException(ErrorCode.CLUB_HAS_MEMBERS);
+        }
+        clubRepository.delete(club);
     }
 
     // 클럽 멤버 목록 조회

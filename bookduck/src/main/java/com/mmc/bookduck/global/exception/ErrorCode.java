@@ -2,7 +2,6 @@ package com.mmc.bookduck.global.exception;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.springframework.http.HttpStatus;
 
 @Getter
 @AllArgsConstructor
@@ -35,6 +34,7 @@ public enum ErrorCode {
     CLUB_PASSWORD_INCORRECT(400, "클럽 비밀번호가 일치하지 않습니다."),
     INVALID_SORT_PARAMETER(400, "유효하지 않은 정렬 파라미터입니다."),
     INVALID_CLUB_STATUS(400, "유효하지 않은 클럽 상태 값입니다."),
+    CLUB_HAS_MEMBERS(400, "다른 클럽 멤버가 있어 클럽을 삭제할 수 없습니다."),
 
     // 401 Unauthorized
     // 로그인 상태여야 하는 요청

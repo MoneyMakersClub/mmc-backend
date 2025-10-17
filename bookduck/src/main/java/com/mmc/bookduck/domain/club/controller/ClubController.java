@@ -71,7 +71,7 @@ public class ClubController {
         return ResponseEntity.ok(clubService.updateClub(clubId, requestDto));
     }
 
-    @Operation(summary = "클럽 삭제", description = "클럽 리더가 클럽을 삭제하거나 비활성화합니다.")
+    @Operation(summary = "클럽 삭제", description = "클럽 리더가 클럽을 삭제합니다. 클럽 멤버가 자신뿐일 때만 삭제가 가능합니다.")
     @DeleteMapping("/{clubId}")
     public ResponseEntity<Void> deleteClub(@PathVariable Long clubId) {
         clubService.deleteClub(clubId);
