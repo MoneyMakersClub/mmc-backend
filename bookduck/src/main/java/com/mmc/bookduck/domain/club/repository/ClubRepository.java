@@ -2,14 +2,17 @@ package com.mmc.bookduck.domain.club.repository;
 
 import com.mmc.bookduck.domain.club.entity.Club;
 import com.mmc.bookduck.domain.club.entity.ClubStatus;
+import jakarta.persistence.LockModeType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface ClubRepository extends JpaRepository<Club, Long> {
 
@@ -53,4 +56,8 @@ public interface ClubRepository extends JpaRepository<Club, Long> {
            "(SELECT COUNT(cm) FROM ClubMember cm WHERE cm.club = c) * 1.0 / c.maxMember DESC, " +
            "c.createdTime DESC")
     Page<Club> findByClubStatusOrderByPopularityDesc(@Param("status") ClubStatus status, Pageable pageable);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select c from Club c where c.clubId = :clubId")
+    Optional<Club> findByIdForUpdate(@Param("clubId") Long clubId);
 }

@@ -19,8 +19,4 @@ public interface ClubMemberRepository extends JpaRepository<ClubMember, Long> {
     List<ClubMember> findByClub(Club club);
     // 락 걸지 않음
     long countByClub(Club club);
-    // 비관적 락
-    @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Query("select count(cm) from ClubMember cm where cm.club = :club")
-    long countForUpdateByClub(@Param("club") Club club);
 }
