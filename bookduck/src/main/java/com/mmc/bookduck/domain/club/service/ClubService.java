@@ -5,6 +5,8 @@ import com.mmc.bookduck.domain.archive.entity.Review;
 import com.mmc.bookduck.domain.archive.repository.ExcerptRepository;
 import com.mmc.bookduck.domain.archive.repository.ReviewRepository;
 import com.mmc.bookduck.domain.book.entity.BookInfo;
+import com.mmc.bookduck.domain.book.entity.UserBook;
+import com.mmc.bookduck.domain.book.repository.UserBookRepository;
 import com.mmc.bookduck.domain.book.service.BookInfoService;
 import com.mmc.bookduck.domain.club.dto.common.ClubBookInfoDto;
 import com.mmc.bookduck.domain.club.dto.common.ClubMemberRoleInfo;
@@ -46,6 +48,7 @@ public class ClubService {
     private final ExcerptRepository excerptRepository;
     private final ReviewRepository reviewRepository;
     private final ClubMemberService clubMemberService;
+    private final UserBookRepository userBookRepository;
 
     // 클럽 생성
     public Long createClub(ClubCreateRequestDto requestDto) {
@@ -237,7 +240,13 @@ public class ClubService {
         int memberCount = Math.toIntExact(clubMemberService.countByClub(club));
         User currentUser = userService.getCurrentUser();
         ClubMemberRoleInfo roleInfo = clubMemberService.getMemberRoleInfo(club, currentUser);
-        return ClubDetailResponseDto.from(club, club.getBookInfo(), memberCount, roleInfo.isMember(), roleInfo.memberRole());
+        
+        // 현재 사용자의 UserBook 조회
+        Long userBookId = userBookRepository.findByUserAndBookInfo(currentUser, club.getBookInfo())
+                .map(UserBook::getUserBookId)
+                .orElse(null);
+        
+        return ClubDetailResponseDto.from(club, club.getBookInfo(), memberCount, roleInfo.isMember(), roleInfo.memberRole(), userBookId);
     }
 
     // LEADER만 수정/삭제 가능

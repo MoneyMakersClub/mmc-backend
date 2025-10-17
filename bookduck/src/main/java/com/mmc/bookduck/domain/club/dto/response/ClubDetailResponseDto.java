@@ -26,9 +26,10 @@ public record ClubDetailResponseDto(
         @Schema(description = "클럽 생성 시각") LocalDateTime createdAt,
         @Schema(description = "책") ClubBookInfoDto clubBookInfo,
         @Schema(description = "현재 사용자의 멤버 여부") Boolean isMember,
-        @Schema(description = "현재 사용자의 멤버 역할") String memberRole
+        @Schema(description = "현재 사용자의 멤버 역할") String memberRole,
+        @Schema(description = "현재 사용자의 UserBook ID (없으면 null)") Long userBookId
 ) {
-    public static ClubDetailResponseDto from(Club club, BookInfo bookInfo, Integer memberCount, boolean isMember, String memberRole) {
+    public static ClubDetailResponseDto from(Club club, BookInfo bookInfo, Integer memberCount, boolean isMember, String memberRole, Long userBookId) {
         return ClubDetailResponseDto.builder()
                 .clubId(club.getClubId())
                 .clubName(club.getClubName())
@@ -44,6 +45,7 @@ public record ClubDetailResponseDto(
                 .clubBookInfo(ClubBookInfoDto.from(bookInfo))
                 .isMember(isMember)
                 .memberRole(memberRole)
+                .userBookId(userBookId)
                 .build();
     }
 }
