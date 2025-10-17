@@ -179,7 +179,7 @@ public class ClubService {
     }
 
     @Transactional(readOnly = true)
-    public ClubJoinedListResponseDto getJoinedClubs() {
+    public ClubJoinedListResponseDto getJoinedClubs(ClubStatus clubStatusFilter) {
         User currentUser = userService.getCurrentUser();
 
         // 내가 속한 클럽 목록
@@ -189,6 +189,11 @@ public class ClubService {
 
         for (ClubMember membership : memberships) {
             Club club = membership.getClub();
+
+            // clubStatus 필터링 적용 (null이면 전체)
+            if (clubStatusFilter != null && club.getClubStatus() != clubStatusFilter) {
+                continue;
+            }
 
             // 미확인 게시물 요약 계산
             ClubUnreadSummaryResponseDto unreadSummary = getUnreadSummary(club.getClubId());
@@ -222,8 +227,8 @@ public class ClubService {
 
     // 클럽 검색
     @Transactional(readOnly = true)
-    public ClubSearchListResponseDto searchClubs(String keyword, ClubStatus status, Pageable pageable) {
-        Page<Club> clubPage = clubRepository.searchClubs(keyword.trim(), status, pageable);
+    public ClubSearchListResponseDto searchClubs(String keyword, ClubStatus clubStatus, Pageable pageable) {
+        Page<Club> clubPage = clubRepository.searchClubs(keyword.trim(), clubStatus, pageable);
         // Club을 ClubSearchResponseDto로 변환
         Page<ClubSearchResponseDto> dtoPage = clubPage.map(club -> {
             BookInfo bookInfo = club.getBookInfo();

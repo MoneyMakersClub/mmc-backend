@@ -15,7 +15,7 @@ public interface ClubRepository extends JpaRepository<Club, Long> {
 
     @Query("SELECT c FROM Club c " +
            "JOIN c.bookInfo b " +
-           "WHERE c.clubStatus = :status " +
+           "WHERE (:status IS NULL OR c.clubStatus = :status) " +
            "AND (LOWER(c.clubName) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
            "OR LOWER(b.title) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
            "OR LOWER(b.author) LIKE LOWER(CONCAT('%', :keyword, '%'))) " +

@@ -34,6 +34,7 @@ public enum ErrorCode {
     CLUB_NOT_ACTIVE(400, "현재 클럽이 활성화 상태가 아닙니다."),
     CLUB_PASSWORD_INCORRECT(400, "클럽 비밀번호가 일치하지 않습니다."),
     INVALID_SORT_PARAMETER(400, "유효하지 않은 정렬 파라미터입니다."),
+    INVALID_CLUB_STATUS(400, "유효하지 않은 클럽 상태 값입니다."),
 
     // 401 Unauthorized
     // 로그인 상태여야 하는 요청

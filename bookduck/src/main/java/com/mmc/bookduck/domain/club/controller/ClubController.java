@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
-import java.util.List;
 
 @Tag(name = "Club", description = "북클럽 생성 및 가입 관련 API")
 @RestController
@@ -53,9 +52,9 @@ public class ClubController {
     @GetMapping("/search")
     public ResponseEntity<ClubSearchListResponseDto> searchClubs(
             @RequestParam @NotBlank String keyword,
-            @RequestParam(defaultValue = "ACTIVE") ClubStatus status,
+            @RequestParam(value = "clubStatus", required = false) ClubStatus clubStatus,
             Pageable pageable) {
-        return ResponseEntity.ok(clubService.searchClubs(keyword, status, pageable));
+        return ResponseEntity.ok(clubService.searchClubs(keyword, clubStatus, pageable));
     }
 
     @Operation(summary = "클럽 상세 조회", description = "클럽의 상세 정보를 조회합니다.")
@@ -110,8 +109,9 @@ public class ClubController {
 
     @Operation(summary = "내가 가입된 클럽 목록 조회", description = "현재 로그인한 사용자가 속한 모든 클럽 목록과, 각 클럽별 읽지 않은 글 수를 반환합니다.")
     @GetMapping("/joined")
-    public ResponseEntity<ClubJoinedListResponseDto> getJoinedClubs() {
-        return ResponseEntity.ok(clubService.getJoinedClubs());
+    public ResponseEntity<ClubJoinedListResponseDto> getJoinedClubs(
+            @RequestParam(value = "clubStatus", required = false) ClubStatus clubStatus) {
+        return ResponseEntity.ok(clubService.getJoinedClubs(clubStatus));
     }
 
     @Operation(summary = "클럽 내 게시글 목록 조회", description = "클럽 내의 게시글이나 아카이브를 조회합니다.")
