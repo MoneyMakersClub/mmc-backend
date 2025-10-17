@@ -147,9 +147,21 @@ public class ClubService {
         all.addAll(excerpts);
         all.addAll(reviews);
 
-        // 안 읽은 것 필터링
+        // 안 읽은 것 필터링 (현재 사용자가 작성한 글 제외)
         List<BaseTimeEntity> unread = all.stream()
-                .filter(a -> a.getCreatedTime().isAfter(lastReadAt))
+                .filter(a -> {
+                    // lastReadAt 이후에 생성된 글만
+                    if (!a.getCreatedTime().isAfter(lastReadAt)) {
+                        return false;
+                    }
+                    // 현재 사용자가 작성한 글 제외
+                    if (a instanceof Excerpt) {
+                        return !((Excerpt) a).getUser().getUserId().equals(currentUser.getUserId());
+                    } else if (a instanceof Review) {
+                        return !((Review) a).getUser().getUserId().equals(currentUser.getUserId());
+                    }
+                    return true;
+                })
                 .toList();
 
         BaseTimeEntity latest = all.isEmpty() ? null :
