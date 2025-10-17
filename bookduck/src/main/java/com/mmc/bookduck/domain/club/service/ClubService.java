@@ -382,7 +382,7 @@ public class ClubService {
         }
         if ("popular".equalsIgnoreCase(orderBy)) { // 인기순: 정원 마감률 높은 순 + 최신순
             return getClubSearchListResponseDto(
-                    clubRepository.findByClubStatusOrderByPopularityDesc(ClubStatus.ACTIVE, pageable)
+                    clubRepository.findByClubStatusOrderByPopularityDesc(ClubStatus.ACTIVE.name(), pageable)
             );
         } else { // 최신순
             return getClubSearchListResponseDto(
