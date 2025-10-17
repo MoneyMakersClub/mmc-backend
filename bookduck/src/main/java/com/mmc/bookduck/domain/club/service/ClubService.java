@@ -11,6 +11,7 @@ import com.mmc.bookduck.domain.book.repository.UserBookRepository;
 import com.mmc.bookduck.domain.book.service.BookInfoService;
 import com.mmc.bookduck.domain.club.dto.common.ClubBookInfoDto;
 import com.mmc.bookduck.domain.club.dto.common.ClubMemberRoleInfo;
+import com.mmc.bookduck.domain.club.dto.common.ClubMemberSummaryDto;
 import com.mmc.bookduck.domain.club.dto.request.ClubCreateRequestDto;
 import com.mmc.bookduck.domain.club.dto.request.ClubJoinRequestDto;
 import com.mmc.bookduck.domain.club.dto.request.ClubUpdateRequestDto;
@@ -259,7 +260,12 @@ public class ClubService {
         Long userBookId = userBookOpt.map(UserBook::getUserBookId).orElse(null);
         var readStatus = userBookOpt.map(UserBook::getReadStatus).orElse(null);
         
-        return ClubDetailResponseDto.from(club, club.getBookInfo(), memberCount, roleInfo.isMember(), roleInfo.memberRole(), userBookId, readStatus);
+        // 클럽 멤버 목록 조회
+        List<ClubMemberSummaryDto> members = clubMemberService.getClubMembersByClub(club).stream()
+                .map(ClubMemberSummaryDto::from)
+                .toList();
+        
+        return ClubDetailResponseDto.from(club, club.getBookInfo(), memberCount, roleInfo.isMember(), roleInfo.memberRole(), userBookId, readStatus, members);
     }
 
     // LEADER만 수정/삭제 가능
