@@ -16,7 +16,6 @@ public interface ClubMemberRepository extends JpaRepository<ClubMember, Long> {
     List<ClubMember> findByUser(User user);
     List<ClubMember> findByClub(Club club);
     long countByClub(Club club);
-    
     @Query(value = "SELECT COUNT(*) FROM club_member WHERE club_id = :clubId FOR UPDATE", nativeQuery = true)
     long countByClubForUpdate(@Param("clubId") Long clubId);
 }

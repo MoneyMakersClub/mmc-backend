@@ -14,6 +14,7 @@ import com.mmc.bookduck.domain.club.repository.ClubMemberRepository;
 import com.mmc.bookduck.domain.user.entity.User;
 import com.mmc.bookduck.global.exception.CustomException;
 import com.mmc.bookduck.global.exception.ErrorCode;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +30,7 @@ public class ClubMemberService {
     private final ClubMemberRepository clubMemberRepository;
     private final UserBookRepository userBookRepository;
     private final ClubMemberReadStatusRepository clubMemberReadStatusRepository;
+    private final EntityManager entityManager;
 
     // 클럽 멤버 생성
     private ClubMember createClubMemberAndAddUserBook(Club club, BookInfo bookInfo, User user, ClubMemberRole role) {
@@ -121,6 +123,7 @@ public class ClubMemberService {
     }
 
     public long countByClubForUpdate(Club club) {
+        entityManager.createNativeQuery("SET innodb_lock_wait_timeout = 3").executeUpdate();
         return clubMemberRepository.countByClubForUpdate(club.getClubId());
     }
 }
