@@ -176,7 +176,7 @@ public class ClubService {
         }
 
         // 최대 인원 확인
-        if (club.getMaxMember() <= clubMemberService.countByClub(club)) {
+        if (club.getMaxMember() <= clubMemberService.countByClubForUpdate(club)) {
             throw new CustomException(ErrorCode.CLUB_FULL);
         }
         ClubMember clubMember = clubMemberService.addMemberToClub(club, bookInfo, currentUser);
@@ -286,7 +286,7 @@ public class ClubService {
         Club club = getClubByIdForUpdate(clubId);
         validateCurrentUserIsLeader(club);
         // 리더만 남아있을 때만 삭제 가능 (다른 멤버가 없어야 함)
-        long memberCount = clubMemberService.countByClub(club);
+        long memberCount = clubMemberService.countByClubForUpdate(club);
         if (memberCount != 1L) {
             throw new CustomException(ErrorCode.CLUB_HAS_MEMBERS);
         }
