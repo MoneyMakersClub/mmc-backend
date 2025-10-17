@@ -5,11 +5,9 @@ import com.mmc.bookduck.domain.club.dto.common.ClubBookInfoDto;
 import com.mmc.bookduck.domain.club.entity.Club;
 import com.mmc.bookduck.domain.club.entity.ClubStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Builder;
 
 import java.time.LocalDate;
 
-@Builder
 @Schema(description = "클럽 검색 응답 DTO")
 public record ClubSearchResponseDto(
         @Schema(description = "클럽 ID") Long clubId,
@@ -19,19 +17,21 @@ public record ClubSearchResponseDto(
         @Schema(description = "현재 가입 인원") Integer memberCount,
         @Schema(description = "최대 가입 인원") Integer maxMember,
         @Schema(description = "활동 시작 날짜") LocalDate activeStartDate,
-        @Schema(description = "활동 종료 날짜") LocalDate activeEndDate
+        @Schema(description = "활동 종료 날짜") LocalDate activeEndDate,
+        @Schema(description = "현재 사용자 가입 여부") Boolean isJoined
 ) {
-    public static ClubSearchResponseDto from(Club club,  BookInfo bookInfo, Integer clubMemberCount) {
-        return ClubSearchResponseDto.builder()
-                .clubId(club.getClubId())
-                .clubStatus(club.getClubStatus())
-                .clubName(club.getClubName())
-                .memberCount(clubMemberCount)
-                .maxMember(club.getMaxMember())
-                .activeStartDate(LocalDate.from(club.getActiveStartAt()))
-                .activeEndDate(LocalDate.from(club.getActiveEndAt()))
-                .clubBookInfo(ClubBookInfoDto.from(bookInfo))
-                .build();
+    public static ClubSearchResponseDto from(Club club, BookInfo bookInfo, Integer clubMemberCount, Boolean isJoined) {
+        return new ClubSearchResponseDto(
+                club.getClubId(),
+                club.getClubStatus(),
+                club.getClubName(),
+                ClubBookInfoDto.from(bookInfo),
+                clubMemberCount,
+                club.getMaxMember(),
+                LocalDate.from(club.getActiveStartAt()),
+                LocalDate.from(club.getActiveEndAt()),
+                isJoined
+        );
     }
 }
 

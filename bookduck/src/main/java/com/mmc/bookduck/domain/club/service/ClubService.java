@@ -434,10 +434,13 @@ public class ClubService {
     // Club을 ClubSearchResponseDto로 변환
     @Transactional(readOnly = true)
     public ClubSearchListResponseDto getClubSearchListResponseDto(Page<Club> clubPage) {
+        User currentUser = userService.getCurrentUser();
+        
         Page<ClubSearchResponseDto> dtoPage = clubPage.map(club -> {
             BookInfo bookInfo = club.getBookInfo();
             int memberCount = Math.toIntExact(clubMemberService.countByClub(club)); // 현재 가입 인원
-            return ClubSearchResponseDto.from(club, bookInfo, memberCount);
+            boolean isJoined = clubMemberService.getMemberRoleInfo(club, currentUser).isMember();
+            return ClubSearchResponseDto.from(club, bookInfo, memberCount, isJoined);
         });
         return ClubSearchListResponseDto.from(dtoPage);
     }
