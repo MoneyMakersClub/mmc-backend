@@ -10,7 +10,8 @@ public record ClubBookInfoDto (
         @Schema(description = "책 표지 이미지 경로") String bookImgPath,
         @Schema(description = "책 제목") String bookTitle,
         @Schema(description = "책 저자") String bookAuthor,
-        @Schema(description = "커스텀책 여부") Boolean isCustom
+        @Schema(description = "커스텀책 여부") Boolean isCustom,
+        @Schema(description = "외부 API 제공 ID (커스텀책은 null)") String providerId
 ) {
     public static ClubBookInfoDto from(BookInfo bookInfo) {
         return ClubBookInfoDto.builder()
@@ -19,6 +20,7 @@ public record ClubBookInfoDto (
                 .bookTitle(bookInfo.getTitle())
                 .bookAuthor(bookInfo.getAuthor())
                 .isCustom(bookInfo.getCreatedUserId()!=null)
+                .providerId(bookInfo.getProviderId())
                 .build();
     }
 }
