@@ -157,8 +157,7 @@ public class ClubService {
     // 클럽 가입
     public Long joinClub(Long clubId, ClubJoinRequestDto requestDto) {
         User currentUser = userService.getCurrentUser();
-        Club club = clubRepository.findByIdForUpdate(clubId)
-                .orElseThrow(() -> new CustomException(ErrorCode.CLUB_NOT_FOUND));
+        Club club = getClubByIdForUpdate(clubId);
         BookInfo bookInfo = club.getBookInfo();
 
         // 클럽 가입 허용 여부 확인
@@ -241,15 +240,20 @@ public class ClubService {
         return ClubDetailResponseDto.from(club, club.getBookInfo(), memberCount, roleInfo.isMember(), roleInfo.memberRole());
     }
 
-    // 클럽 정보 수정
-    public ClubUpdateResponseDto updateClub(Long clubId, ClubUpdateRequestDto requestDto) {
-        Club club = getClubById(clubId);
+    // LEADER만 수정/삭제 가능
+    private void validateCurrentUserIsLeader(Club club) {
         User currentUser = userService.getCurrentUser();
         ClubMember member = clubMemberService.getClubMemberByClubAndUser(club, currentUser);
-        // LEADER만 수정 가능
         if (member.getClubMemberRole() != ClubMemberRole.LEADER) {
             throw new CustomException(ErrorCode.UNAUTHORIZED_REQUEST);
         }
+    }
+
+    // 클럽 정보 수정
+    public ClubUpdateResponseDto updateClub(Long clubId, ClubUpdateRequestDto requestDto) {
+        Club club = getClubByIdForUpdate(clubId);
+        validateCurrentUserIsLeader(club);
+
         // 정보 업데이트
         if (requestDto.clubName() != null && !requestDto.clubName().trim().isEmpty()) {
             club.updateClubName(requestDto.clubName().trim());
@@ -279,17 +283,8 @@ public class ClubService {
 
     // 클럽 삭제
     public void deleteClub(Long clubId) {
-        // Club row에 비관적 락
-        Club club = clubRepository.findByIdForUpdate(clubId)
-                .orElseThrow(() -> new CustomException(ErrorCode.CLUB_NOT_FOUND));
-
-        User currentUser = userService.getCurrentUser();
-        ClubMember member = clubMemberService.getClubMemberByClubAndUser(club, currentUser);
-
-        // LEADER만 삭제 가능
-        if (member.getClubMemberRole() != ClubMemberRole.LEADER) {
-            throw new CustomException(ErrorCode.UNAUTHORIZED_REQUEST);
-        }
+        Club club = getClubByIdForUpdate(clubId);
+        validateCurrentUserIsLeader(club);
         // 리더만 남아있을 때만 삭제 가능 (다른 멤버가 없어야 함)
         long memberCount = clubMemberService.countByClub(club);
         if (memberCount != 1L) {
@@ -350,6 +345,12 @@ public class ClubService {
     @Transactional(readOnly = true)
     public Club getClubById(Long clubId) {
         return clubRepository.findById(clubId)
+                .orElseThrow(() -> new CustomException(ErrorCode.CLUB_NOT_FOUND));
+    }
+
+    // Club row에 비관적 락
+    public Club getClubByIdForUpdate(Long clubId) {
+        return clubRepository.findByIdForUpdate(clubId)
                 .orElseThrow(() -> new CustomException(ErrorCode.CLUB_NOT_FOUND));
     }
 
