@@ -287,7 +287,6 @@ public class ClubService {
     // 클럽 삭제
     public void deleteClub(Long clubId) {
         Club club = getClubById(clubId);
-
         User currentUser = userService.getCurrentUser();
         ClubMember member = clubMemberService.getClubMemberByClubAndUser(club, currentUser);
 
@@ -297,10 +296,11 @@ public class ClubService {
         }
 
         // 클럽이 비어 있을 때만 삭제 가능
-        List<ClubMember> members = clubMemberService.getClubMembersByClub(club);
-        if (members.size() != 1 || !members.get(0).equals(member)) {
+        long memberCount = clubMemberService.countForUpdateByClub(club);
+        if (memberCount != 1L) {
             throw new CustomException(ErrorCode.CLUB_HAS_MEMBERS);
         }
+
         clubRepository.delete(club);
     }
 

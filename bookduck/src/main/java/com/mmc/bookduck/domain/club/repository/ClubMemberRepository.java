@@ -3,7 +3,11 @@ package com.mmc.bookduck.domain.club.repository;
 import com.mmc.bookduck.domain.club.entity.ClubMember;
 import com.mmc.bookduck.domain.user.entity.User;
 import com.mmc.bookduck.domain.club.entity.Club;
+import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
@@ -11,7 +15,12 @@ import java.util.Optional;
 public interface ClubMemberRepository extends JpaRepository<ClubMember, Long> {
     boolean existsByClubAndUser(Club club, User user);
     Optional<ClubMember> findByClubAndUser(Club club, User user);
-    long countByClub(Club club);
     List<ClubMember> findByUser(User user);
     List<ClubMember> findByClub(Club club);
+    // 락 걸지 않음
+    long countByClub(Club club);
+    // 비관적 락
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select count(cm) from ClubMember cm where cm.club = :club")
+    long countForUpdateByClub(@Param("club") Club club);
 }

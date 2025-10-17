@@ -60,8 +60,7 @@ public class ClubMemberService {
             throw new CustomException(ErrorCode.ALREADY_JOINED_CLUB);
         }
         // 최대 인원 확인
-        int memberCount = Math.toIntExact(clubMemberRepository.countByClub(club));
-        if (memberCount >= club.getMaxMember()) {
+        if (club.getMaxMember() <= countForUpdateByClub(club)) {
             throw new CustomException(ErrorCode.CLUB_FULL);
         }
         // 클럽 가입
@@ -92,6 +91,11 @@ public class ClubMemberService {
     @Transactional(readOnly = true)
     public long countByClub(Club club) {
         return clubMemberRepository.countByClub(club);
+    }
+
+    // PESSIMISTIC_WRITE 락, @Transactional(readOnly = false) 필수
+    public long countForUpdateByClub(Club club) {
+        return clubMemberRepository.countForUpdateByClub(club);
     }
 
     @Transactional(readOnly = true)

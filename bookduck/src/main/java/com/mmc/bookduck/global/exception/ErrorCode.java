@@ -34,7 +34,6 @@ public enum ErrorCode {
     CLUB_PASSWORD_INCORRECT(400, "클럽 비밀번호가 일치하지 않습니다."),
     INVALID_SORT_PARAMETER(400, "유효하지 않은 정렬 파라미터입니다."),
     INVALID_CLUB_STATUS(400, "유효하지 않은 클럽 상태 값입니다."),
-    CLUB_HAS_MEMBERS(400, "다른 클럽 멤버가 있어 클럽을 삭제할 수 없습니다."),
 
     // 401 Unauthorized
     // 로그인 상태여야 하는 요청
@@ -87,7 +86,7 @@ public enum ErrorCode {
     CLUB_MEMBER_NOT_FOUND(404, "북클럽 멤버를 찾을 수 없습니다."),
 
     // 409 Conflict
-    // 중복 리소스 생성 시도
+    // 중복 리소스 생성 시도, 서버의 현재 상태와 요청이 충돌했음
     USER_ALREADY_EXISTS(409, "이미 존재하는 사용자입니다."),
     NICKNAME_ALREADY_EXISTS(409, "이미 존재하는 닉네임입니다."),
     FRIEND_REQUEST_ALREADY_EXISTS(409, "이미 친구 요청이 존재합니다."),
@@ -105,6 +104,7 @@ public enum ErrorCode {
     ITEM_ALREADY_EXISTS(409, "이미 존재하는 아이템입니다."),
     ITEM_ALREADY_EQUIPPED(409, "이미 장착한 아이템입니다."),
     ALREADY_JOINED_CLUB(409, "이미 가입된 클럽입니다."),
+    CLUB_HAS_MEMBERS(409, "다른 클럽 멤버가 있어 클럽을 삭제할 수 없습니다."),
 
     // 500 Internal Server Error
     // 외부 API 사용 도중 에러
