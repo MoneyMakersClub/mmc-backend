@@ -119,4 +119,8 @@ public class ClubMemberService {
         return clubMemberRepository.findById(memberId)
                 .orElseThrow(()-> new CustomException(ErrorCode.CLUB_MEMBER_NOT_FOUND));
     }
+
+    public long countByClubForUpdate(Club club) {
+        return clubMemberRepository.countByClubForUpdate(club.getClubId());
+    }
 }
