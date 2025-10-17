@@ -5,6 +5,9 @@ import com.mmc.bookduck.global.common.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
@@ -26,6 +29,9 @@ public class ClubMember extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "club_id", nullable = false)
     private Club club;
+
+    @OneToMany(mappedBy = "clubMember", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<ClubMemberReadStatus> readStatuses = new ArrayList<>();
 
     @Builder
     public ClubMember(Club club, User user, ClubMemberRole clubMemberRole) {

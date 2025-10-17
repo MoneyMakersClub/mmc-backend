@@ -69,11 +69,7 @@ public class ClubMemberService {
 
     // 클럽 멤버 삭제
     public void deleteClubMember(ClubMember member) {
-        // LEADER인 클럽 멤버는 삭제될 수 없음
-        if (member.getClubMemberRole() == ClubMemberRole.LEADER) {
-            throw new CustomException(ErrorCode.UNAUTHORIZED_REQUEST);
-        }
-        clubMemberRepository.delete(member);
+        clubMemberRepository.delete(member); // cascade REMOVE로 ClubMember, ClubMemberReadStatus 자동 삭제
     }
 
     @Transactional(readOnly = true)

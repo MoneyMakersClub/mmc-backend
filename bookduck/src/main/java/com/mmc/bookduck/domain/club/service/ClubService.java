@@ -295,13 +295,12 @@ public class ClubService {
             throw new CustomException(ErrorCode.UNAUTHORIZED_REQUEST);
         }
 
-        // 클럽이 비어 있을 때만 삭제 가능
+        // 리더만 남아있을 때만 삭제 가능 (다른 멤버가 없어야 함)
         long memberCount = clubMemberService.countForUpdateByClub(club);
         if (memberCount != 1L) {
             throw new CustomException(ErrorCode.CLUB_HAS_MEMBERS);
         }
-
-        clubRepository.delete(club);
+        clubRepository.delete(club); // cascade REMOVE로 Club, ClubMember, ClubMemberReadStatus 자동 삭제
     }
 
     // 클럽 멤버 목록 조회
@@ -320,6 +319,10 @@ public class ClubService {
         Club club = getClubById(clubId);
         User currentUser = userService.getCurrentUser();
         ClubMember member = clubMemberService.getClubMemberByClubAndUser(club, currentUser);
+        // LEADER인 클럽 멤버는 삭제될 수 없음
+        if (member.getClubMemberRole() == ClubMemberRole.LEADER) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED_REQUEST);
+        }
         clubMemberService.deleteClubMember(member);
     }
 
