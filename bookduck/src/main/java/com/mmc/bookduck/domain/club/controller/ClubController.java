@@ -114,12 +114,11 @@ public class ClubController {
         return ResponseEntity.ok(clubService.getJoinedClubs(clubStatus));
     }
 
-    @Operation(summary = "클럽 내 게시글 목록 조회", description = "클럽 내의 게시글이나 아카이브를 조회합니다. memberId로 특정 멤버의 게시글만 필터링 가능합니다.")
+    @Operation(summary = "클럽 내 게시글 목록 조회", description = "클럽 내의 게시글이나 아카이브를 조회합니다.")
     @GetMapping("/{clubId}/archives")
     public ResponseEntity<ClubArchiveListResponseDto> getClubArchives(
             @PathVariable Long clubId,
-            @RequestParam(required = false) Long memberId,
             Pageable pageable) {
-        return ResponseEntity.ok(clubService.getClubArchives(clubId, memberId, pageable));
+        return ResponseEntity.ok(clubService.getClubArchives(clubId, pageable));
     }
 }

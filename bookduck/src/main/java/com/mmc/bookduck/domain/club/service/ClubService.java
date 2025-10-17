@@ -5,11 +5,11 @@ import com.mmc.bookduck.domain.archive.entity.Review;
 import com.mmc.bookduck.domain.archive.repository.ExcerptRepository;
 import com.mmc.bookduck.domain.archive.repository.ReviewRepository;
 import com.mmc.bookduck.domain.book.entity.BookInfo;
+import com.mmc.bookduck.domain.book.entity.ReadStatus;
 import com.mmc.bookduck.domain.book.entity.UserBook;
 import com.mmc.bookduck.domain.book.repository.UserBookRepository;
 import com.mmc.bookduck.domain.book.service.BookInfoService;
 import com.mmc.bookduck.domain.club.dto.common.ClubBookInfoDto;
-import com.mmc.bookduck.domain.club.dto.common.ClubMemberSummaryDto;
 import com.mmc.bookduck.domain.club.dto.common.ClubMemberRoleInfo;
 import com.mmc.bookduck.domain.club.dto.request.ClubCreateRequestDto;
 import com.mmc.bookduck.domain.club.dto.request.ClubJoinRequestDto;
@@ -74,7 +74,7 @@ public class ClubService {
     }
 
     @Transactional(readOnly = true)
-    public ClubArchiveListResponseDto getClubArchives(Long clubId, Long memberId, Pageable pageable) {
+    public ClubArchiveListResponseDto getClubArchives(Long clubId, Pageable pageable) {
         User currentUser = userService.getCurrentUser();
         Club club = getClubById(clubId);
         // 클럽 멤버 및 상태 조회
@@ -82,21 +82,12 @@ public class ClubService {
         LocalDateTime lastReadAt = markAsReadAndGetLastReadAt(currentMember);
         BookInfo targetBook = club.getBookInfo();
 
-        List<Long> memberUserIds;
-        if (memberId != null) {
-            // 특정 멤버만 필터링
-            ClubMember targetMember = clubMemberService.getClubMemberById(memberId);
-            if (!targetMember.getClub().getClubId().equals(clubId)) {
-                throw new CustomException(ErrorCode.CLUB_MEMBER_NOT_FOUND);
-            }
-            memberUserIds = List.of(targetMember.getUser().getUserId());
-        } else {
-            // 전체 멤버
-            memberUserIds = clubMemberService.getClubMembersByClub(club).stream()
-                    .map(cm -> cm.getUser().getUserId())
-                    .toList();
-        }
+        // 클럽 멤버 전체 userId 추출
+        List<Long> memberUserIds = clubMemberService.getClubMembersByClub(club).stream()
+                .map(cm -> cm.getUser().getUserId())
+                .toList();
 
+        // 전체 Excerpt / Review 조회 (읽음 여부 필터 제거)
         List<Excerpt> excerpts = excerptRepository.findClubExcerpts(
                 targetBook.getBookInfoId(),
                 memberUserIds,
@@ -252,16 +243,11 @@ public class ClubService {
         ClubMemberRoleInfo roleInfo = clubMemberService.getMemberRoleInfo(club, currentUser);
         
         // 현재 사용자의 UserBook 조회
-        Long userBookId = userBookRepository.findByUserAndBookInfo(currentUser, club.getBookInfo())
-                .map(UserBook::getUserBookId)
-                .orElse(null);
+        var userBookOpt = userBookRepository.findByUserAndBookInfo(currentUser, club.getBookInfo());
+        Long userBookId = userBookOpt.map(UserBook::getUserBookId).orElse(null);
+        var readStatus = userBookOpt.map(UserBook::getReadStatus).orElse(null);
         
-        // 클럽 멤버 목록 조회
-        List<ClubMemberSummaryDto> members = clubMemberService.getClubMembersByClub(club).stream()
-                .map(ClubMemberSummaryDto::from)
-                .toList();
-        
-        return ClubDetailResponseDto.from(club, club.getBookInfo(), memberCount, roleInfo.isMember(), roleInfo.memberRole(), userBookId, members);
+        return ClubDetailResponseDto.from(club, club.getBookInfo(), memberCount, roleInfo.isMember(), roleInfo.memberRole(), userBookId, readStatus);
     }
 
     // LEADER만 수정/삭제 가능
