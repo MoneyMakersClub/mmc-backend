@@ -2,14 +2,19 @@ package com.mmc.bookduck.domain.club.repository;
 
 import com.mmc.bookduck.domain.club.entity.Club;
 import com.mmc.bookduck.domain.club.entity.ClubStatus;
+import jakarta.persistence.LockModeType;
+import jakarta.persistence.QueryHint;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.QueryHints;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface ClubRepository extends JpaRepository<Club, Long> {
 
@@ -46,11 +51,17 @@ public interface ClubRepository extends JpaRepository<Club, Long> {
     Page<Club> findByClubStatusOrderByCreatedTimeDesc(@Param("status") ClubStatus status, Pageable pageable);
 
     // 인기순
-    @Query("SELECT c FROM Club c " +
-           "WHERE c.clubStatus = :status " +
-           "AND (SELECT COUNT(cm) FROM ClubMember cm WHERE cm.club = c) < c.maxMember " +
-           "ORDER BY " +
-           "(SELECT COUNT(cm) FROM ClubMember cm WHERE cm.club = c) * 1.0 / c.maxMember DESC, " +
-           "c.createdTime DESC")
-    Page<Club> findByClubStatusOrderByPopularityDesc(@Param("status") ClubStatus status, Pageable pageable);
+    @Query(value = """
+    SELECT * FROM club c
+    WHERE c.club_status = :status
+    AND (SELECT COUNT(*) FROM club_member cm WHERE cm.club_id = c.club_id) < c.max_member
+    ORDER BY (SELECT COUNT(*) FROM club_member cm WHERE cm.club_id = c.club_id) * 1.0 / c.max_member DESC,
+             c.created_time DESC
+    """, nativeQuery = true)
+    Page<Club> findByClubStatusOrderByPopularityDesc(@Param("status") String status, Pageable pageable);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select c from Club c where c.clubId = :clubId")
+    @QueryHints({@QueryHint(name = "jakarta.persistence.lock.timeout", value = "3000")})
+    Optional<Club> findByIdForUpdate(@Param("clubId") Long clubId);
 }

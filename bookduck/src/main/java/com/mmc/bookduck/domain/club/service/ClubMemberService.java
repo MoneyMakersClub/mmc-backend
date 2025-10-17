@@ -7,7 +7,9 @@ import com.mmc.bookduck.domain.book.repository.UserBookRepository;
 import com.mmc.bookduck.domain.club.dto.common.ClubMemberRoleInfo;
 import com.mmc.bookduck.domain.club.entity.Club;
 import com.mmc.bookduck.domain.club.entity.ClubMember;
+import com.mmc.bookduck.domain.club.entity.ClubMemberReadStatus;
 import com.mmc.bookduck.domain.club.entity.ClubMemberRole;
+import com.mmc.bookduck.domain.club.repository.ClubMemberReadStatusRepository;
 import com.mmc.bookduck.domain.club.repository.ClubMemberRepository;
 import com.mmc.bookduck.domain.user.entity.User;
 import com.mmc.bookduck.global.exception.CustomException;
@@ -16,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,6 +28,7 @@ import java.util.Optional;
 public class ClubMemberService {
     private final ClubMemberRepository clubMemberRepository;
     private final UserBookRepository userBookRepository;
+    private final ClubMemberReadStatusRepository clubMemberReadStatusRepository;
 
     // 클럽 멤버 생성
     private ClubMember createClubMemberAndAddUserBook(Club club, BookInfo bookInfo, User user, ClubMemberRole role) {
@@ -33,6 +37,13 @@ public class ClubMemberService {
                 .user(user)
                 .clubMemberRole(role)
                 .build();
+        ClubMember savedClubMember = clubMemberRepository.save(clubMember);
+        
+        // 읽음 상태 저장
+        ClubMemberReadStatus clubMemberReadStatus = new ClubMemberReadStatus(savedClubMember, LocalDateTime.now());
+        clubMemberReadStatusRepository.save(clubMemberReadStatus);
+        
+        // UserBook 갱신 혹은 생성
         Optional<UserBook> existingUserBook = userBookRepository.findByUserAndBookInfo(user, bookInfo);
         if (existingUserBook.isEmpty()) {
             UserBook userBook = new UserBook(ReadStatus.READING, user, bookInfo);
@@ -44,25 +55,20 @@ public class ClubMemberService {
                 userBookRepository.save(userBook);
             }
         }
-        return clubMemberRepository.save(clubMember);
+        return savedClubMember;
     }
 
     // 클럽 리더 생성
-    public ClubMember createClubLeader(Club club, BookInfo bookInfo, User user) {
-        return createClubMemberAndAddUserBook(club, bookInfo, user, ClubMemberRole.LEADER);
+    public void addLeaderToClub(Club club, BookInfo bookInfo, User user) {
+        createClubMemberAndAddUserBook(club, bookInfo, user, ClubMemberRole.LEADER);
     }
 
     // 클럽 가입하기
-    public ClubMember joinToClub(Club club, BookInfo bookInfo, User user) {
+    public ClubMember addMemberToClub(Club club, BookInfo bookInfo, User user) {
         // 이미 가입한 멤버인지 확인
         boolean alreadyJoined = clubMemberRepository.existsByClubAndUser(club, user);
         if (alreadyJoined) {
             throw new CustomException(ErrorCode.ALREADY_JOINED_CLUB);
-        }
-        // 최대 인원 확인
-        int memberCount = Math.toIntExact(clubMemberRepository.countByClub(club));
-        if (memberCount >= club.getMaxMember()) {
-            throw new CustomException(ErrorCode.CLUB_FULL);
         }
         // 클럽 가입
         return createClubMemberAndAddUserBook(club, bookInfo, user, ClubMemberRole.MEMBER);
@@ -70,11 +76,7 @@ public class ClubMemberService {
 
     // 클럽 멤버 삭제
     public void deleteClubMember(ClubMember member) {
-        // LEADER인 클럽 멤버는 삭제될 수 없음
-        if (member.getClubMemberRole() == ClubMemberRole.LEADER) {
-            throw new CustomException(ErrorCode.UNAUTHORIZED_REQUEST);
-        }
-        clubMemberRepository.delete(member);
+        clubMemberRepository.delete(member); // cascade REMOVE로 ClubMember, ClubMemberReadStatus 자동 삭제
     }
 
     @Transactional(readOnly = true)
