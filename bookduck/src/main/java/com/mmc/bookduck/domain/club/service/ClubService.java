@@ -1,5 +1,7 @@
 package com.mmc.bookduck.domain.club.service;
 
+import com.mmc.bookduck.domain.archive.dto.response.ExcerptResponseDto;
+import com.mmc.bookduck.domain.archive.dto.response.ReviewResponseDto;
 import com.mmc.bookduck.domain.archive.entity.Excerpt;
 import com.mmc.bookduck.domain.archive.entity.Review;
 import com.mmc.bookduck.domain.archive.repository.ExcerptRepository;
@@ -130,7 +132,13 @@ public class ClubService {
         }
 
         // 정렬 및 페이징 (최신순)
-        allPosts.sort(Comparator.comparing(ClubArchiveResponseDto::createdTime).reversed());
+        allPosts.sort(Comparator.<ClubArchiveResponseDto, LocalDateTime>comparing(post -> {
+            if (post.data() instanceof ExcerptResponseDto e) {
+                return e.createdTime();
+            } else {
+                return ((ReviewResponseDto) post.data()).createdTime();
+            }
+        }).reversed());
         int start = (int) pageable.getOffset();
         int end = Math.min(start + pageable.getPageSize(), allPosts.size());
         List<ClubArchiveResponseDto> pageContent = allPosts.subList(start, end);
@@ -152,10 +160,10 @@ public class ClubService {
         // Excerpt + Review 조회
         List<Excerpt> excerpts = excerptRepository.findClubExcerpts(
                 club.getBookInfo().getBookInfoId(), memberUserIds,
-                club.getActiveStartAt(), club.getActiveEndAt());
+                club.getActiveStartAt(), club.getActiveEndAt(), currentUser.getUserId());
         List<Review> reviews = reviewRepository.findClubReviews(
                 club.getBookInfo().getBookInfoId(), memberUserIds,
-                club.getActiveStartAt(), club.getActiveEndAt());
+                club.getActiveStartAt(), club.getActiveEndAt(), currentUser.getUserId());
 
         // 모두 합치기
         List<BaseTimeEntity> all = new ArrayList<>();
