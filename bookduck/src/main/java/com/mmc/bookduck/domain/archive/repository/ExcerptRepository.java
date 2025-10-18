@@ -60,7 +60,8 @@ public interface ExcerptRepository extends JpaRepository<Excerpt, Long> {
         WHERE e.user.userId IN :userIds
           AND e.userBook.bookInfo.bookInfoId = :bookInfoId
           AND e.createdTime BETWEEN :start AND :end
+          AND (e.visibility = 'PUBLIC' OR e.user.userId = :currentUserId)
     """)
     List<Excerpt> findClubExcerpts(Long bookInfoId, List<Long> userIds,
-                                   LocalDateTime start, LocalDateTime end);
+                                   LocalDateTime start, LocalDateTime end, Long currentUserId);
 }

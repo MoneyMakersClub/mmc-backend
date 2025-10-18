@@ -100,19 +100,21 @@ public class ClubService {
                     .toList();
         }
 
-        // Excerpt / Review 조회
+        // Excerpt / Review 조회 (PRIVATE는 본인 것만)
         List<Excerpt> excerpts = excerptRepository.findClubExcerpts(
                 targetBook.getBookInfoId(),
                 memberUserIds,
                 club.getActiveStartAt(),
-                club.getActiveEndAt()
+                club.getActiveEndAt(),
+                currentUser.getUserId()
         );
 
         List<Review> reviews = reviewRepository.findClubReviews(
                 targetBook.getBookInfoId(),
                 memberUserIds,
                 club.getActiveStartAt(),
-                club.getActiveEndAt()
+                club.getActiveEndAt(),
+                currentUser.getUserId()
         );
 
         // DTO 변환 + lastReadAt로 읽음 여부 플래그 계산

@@ -48,7 +48,8 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
         WHERE r.user.userId IN :userIds
           AND r.userBook.bookInfo.bookInfoId = :bookInfoId
           AND r.createdTime BETWEEN :start AND :end
+          AND (r.visibility = 'PUBLIC' OR r.user.userId = :currentUserId)
     """)
     List<Review> findClubReviews(Long bookInfoId, List<Long> userIds,
-                                 LocalDateTime start, LocalDateTime end);
+                                 LocalDateTime start, LocalDateTime end, Long currentUserId);
 }
